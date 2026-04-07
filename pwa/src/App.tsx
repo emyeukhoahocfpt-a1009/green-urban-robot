@@ -3,8 +3,11 @@ import { useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './stores/authStore'
 import ProtectedRoute from './components/ProtectedRoute'
+import MainLayout from './components/MainLayout'
 import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
+import Home from './pages/Home'
+import MapPage from './pages/MapPage'
+import SchedulePage from './pages/SchedulePage'
 
 export default function App() {
   const { setSession, fetchProfile } = useAuthStore()
@@ -29,14 +32,23 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        
+        {/* Main App Layout */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Nested Routes */}
+          <Route index element={<Home />} />
+          <Route path="map" element={<MapPage />} />
+          <Route path="schedule" element={<SchedulePage />} />
+        </Route>
+        
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
