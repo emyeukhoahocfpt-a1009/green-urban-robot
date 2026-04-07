@@ -15,7 +15,11 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const err = await signIn(email, password)
+    
+    // Tự động gán phần đuôi .local nếu người dùng chỉ nhập username (ví dụ: robot001)
+    const loginEmail = email.includes('@') ? email : `${email}@local.app`
+    
+    const err = await signIn(loginEmail, password)
     if (err) setError(err)
     setLoading(false)
   }
@@ -47,16 +51,16 @@ export default function Login() {
           {error && <div className="error-message">⚠️ {error}</div>}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email</label>
+            <label className="form-label" htmlFor="email">Tài khoản (Username / Email)</label>
             <input
               id="email"
-              type="email"
+              type="text"
               className="input"
-              placeholder="robot@example.com"
+              placeholder="VD: robot001"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value.toLowerCase())}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 
