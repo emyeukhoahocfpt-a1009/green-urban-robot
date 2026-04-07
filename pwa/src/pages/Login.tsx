@@ -24,7 +24,19 @@ export default function Login() {
     <div className="login-page">
       <div className="glass-card login-card">
         <div className="login-logo">
-          <div className="login-logo-icon">🤖</div>
+          <div className="login-logo-icon">
+            <img
+              src="/logo.png"
+              alt="Green Urban Robot Logo"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                borderRadius: '50%',
+                filter: 'drop-shadow(0 0 12px rgba(52,211,100,0.5))',
+              }}
+            />
+          </div>
           <div>
             <h1>Green Urban Robot</h1>
             <p>Hệ thống điều khiển robot đô thị xanh</p>
