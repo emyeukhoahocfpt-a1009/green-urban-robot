@@ -20,6 +20,13 @@ export default function MainLayout() {
     notifTimeout.current = setTimeout(() => setNotification(null), 4000)
   }
 
+  const [currentTime, setCurrentTime] = useState<Date>(new Date())
+  
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('app-theme') as 'dark' | 'light') || 'dark'
   })
@@ -73,6 +80,9 @@ export default function MainLayout() {
           )}
         </div>
         <div className="header-actions">
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 500, letterSpacing: '0.05em' }}>
+            {currentTime.toLocaleTimeString('vi-VN')}
+          </span>
           <ConnectionBadge lastHeartbeat={lastHeartbeat} />
           
           {/* Theme Toggle Button */}
