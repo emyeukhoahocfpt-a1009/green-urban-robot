@@ -73,6 +73,36 @@
 }
 
 /* ============================================================
+   LIGHT MODE DESIGN TOKENS
+   ============================================================ */
+[data-theme='light'] {
+  --color-bg: #f2f7f4;
+  --color-bg-2: #e8f0eb;
+  --color-surface: #ffffff;
+  --color-surface-2: #f8faf9;
+  --color-border: rgba(52, 211, 100, 0.3);
+  --color-border-hover: rgba(52, 211, 100, 0.5);
+  
+  --color-primary: #1da344;
+  --color-primary-dim: rgba(29, 163, 68, 0.15);
+  --color-primary-glow: rgba(29, 163, 68, 0.3);
+  --color-accent: #009975;
+  --color-accent-dim: rgba(0, 153, 117, 0.12);
+
+  --color-text: #17261d;
+  --color-text-muted: #4a6b52;
+  --color-text-dim: #6e8a75;
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(52, 211, 100, 0.2);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(29, 163, 68, 0.2);
+}
+
+/* ============================================================
    RESET & BASE
    ============================================================ */
 *, *::before, *::after {

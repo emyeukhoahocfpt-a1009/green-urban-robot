@@ -20,6 +20,19 @@ export default function MainLayout() {
     notifTimeout.current = setTimeout(() => setNotification(null), 4000)
   }
 
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('app-theme') as 'dark' | 'light') || 'dark'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('app-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }
+
   // Subscribe to telemetry for heartbeat
   useEffect(() => {
     const channel = supabase
@@ -61,6 +74,17 @@ export default function MainLayout() {
         </div>
         <div className="header-actions">
           <ConnectionBadge lastHeartbeat={lastHeartbeat} />
+          
+          {/* Theme Toggle Button */}
+          <button 
+            className="btn btn-ghost" 
+            onClick={toggleTheme} 
+            title={theme === 'dark' ? 'Chuyển sang nền sáng' : 'Chuyển sang nền tối'}
+            style={{ padding: '6px', fontSize: '1rem', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+
           <button id="btn-signout" className="btn btn-ghost" onClick={signOut} style={{ padding: '6px 14px', fontSize: '0.8rem' }}>
             Đăng xuất
           </button>
