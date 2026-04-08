@@ -23,38 +23,42 @@ export default function Home() {
   }
 
   return (
-    <div className="home-page animate-fade-in">
-      {/* Camera Feed */}
-      <div className="glass-card panel camera-panel">
+    <div className="home-page animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 'var(--space-6)' }}>
+      {/* Camera */}
+      <div>
         <div className="section-header">
           <span className="section-title">📹 Camera Trực Tiếp</span>
         </div>
-        <CameraFeed streamUrl={profile?.robot_config?.stream_url} />
+        <div className="organic-card" style={{ padding: 8, overflow: 'hidden' }}>
+          <CameraFeed streamUrl={profile?.robot_config?.stream_url} />
+        </div>
       </div>
 
-      {/* Sensor & Commands */}
-      <div className="glass-card panel">
-        <div className="section-header">
-          <span className="section-title">📊 Trạng thái Hệ thống</span>
-        </div>
-        <SensorHUD onLowBattery={() => showNotif('⚠️ Pin dưới 20%! Robot cần sạc.', 'warning')} />
-
-        <div style={{ marginTop: '24px' }}>
-          <div className="section-header" style={{ marginBottom: '16px' }}>
-            <span className="section-title">🎮 Bảng Điều khiển</span>
+      {/* Status & Controls */}
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div className="section-header">
+            <span className="section-title">🎮 Điều khiển Nhanh</span>
           </div>
-          <div className="command-row">
-            <button className="btn btn-primary" onClick={() => sendCommand('start')}>
-              ▶️ Bắt đầu làm việc
-            </button>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-              <button className="btn btn-ghost" onClick={() => sendCommand('go_home')} style={{ flex: 1 }}>
-                🏠 Trở về trạm
+          <div className="organic-card" style={{ padding: 'var(--space-5)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <button className="btn btn-primary" onClick={() => sendCommand('start')} style={{ width: '100%', justifyContent: 'center', height: 48 }}>
+                ▶️ Bắt đầu làm việc
               </button>
-              <button className="btn btn-danger" onClick={() => sendCommand('stop')} style={{ flex: 1 }}>
-                ⛔ Dừng khẩn cấp
-              </button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                <button className="btn btn-ghost" onClick={() => sendCommand('go_home')}>🏠 Trạm sạc</button>
+                <button className="btn btn-danger" onClick={() => sendCommand('stop')}>⛔ Dừng lại</button>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div className="section-header" style={{ marginTop: 'var(--space-4)' }}>
+            <span className="section-title">📊 Trạng thái Hệ thống</span>
+          </div>
+          <div className="organic-card" style={{ padding: 'var(--space-5)' }}>
+            <SensorHUD onLowBattery={() => showNotif('⚠️ Pin dưới 20%! Robot cần sạc.', 'warning')} />
           </div>
         </div>
       </div>

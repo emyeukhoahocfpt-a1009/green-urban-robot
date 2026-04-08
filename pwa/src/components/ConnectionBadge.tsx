@@ -25,9 +25,9 @@ export default function ConnectionBadge({ lastHeartbeat }: Props) {
   }[status]
 
   return (
-    <div id="connection-badge" className={`badge ${config.cls}`}>
+    <div id="connection-badge" className={`badge ${config.cls}`} style={{ fontSize: '0.65rem' }}>
       <span className="pulse-dot" />
-      {config.icon} ESP32 {config.label}
+      {config.icon} {config.label}
     </div>
   )
 }

@@ -10,7 +10,6 @@ export default function DrivePage() {
   const { profile } = useAuthStore()
   const { showNotif } = useOutletContext<OutletContextType>()
   const lastDir = useRef<string | null>(null)
-  
   const [controlMode, setControlMode] = useState<'joystick' | 'gamepad'>('joystick')
 
   const sendCommand = async (command: 'forward' | 'backward' | 'left' | 'right' | 'stop') => {
@@ -18,37 +17,26 @@ export default function DrivePage() {
       user_id: profile?.id,
       command
     })
-    
     if (!error) {
-      if (navigator.vibrate) navigator.vibrate(20) // Give a tiny haptic feedback
-      console.log('Sent command:', command)
+      if (navigator.vibrate) navigator.vibrate(20)
     } else {
       showNotif('Lỗi khi gửi lệnh điều hướng!', 'danger')
     }
   }
 
-  // Joystick specific handlers
   const handleMove = (e: any) => {
     if (e.direction && e.direction !== lastDir.current) {
       lastDir.current = e.direction
       const dirMap: Record<string, 'forward' | 'backward' | 'left' | 'right'> = {
-        FORWARD: 'forward',
-        BACKWARD: 'backward',
-        LEFT: 'left',
-        RIGHT: 'right'
+        FORWARD: 'forward', BACKWARD: 'backward', LEFT: 'left', RIGHT: 'right'
       }
-      if (dirMap[e.direction]) {
-        sendCommand(dirMap[e.direction])
-      }
+      if (dirMap[e.direction]) sendCommand(dirMap[e.direction])
     }
   }
 
-  const handleStop = () => {
-    lastDir.current = null
-    sendCommand('stop')
-  }
+  const handleStop = () => { lastDir.current = null; sendCommand('stop') }
 
-  // --- HARDWARE GAMEPAD API POLLING ---
+  // Hardware gamepad polling
   const gamepadsLoopRef = useRef<number | null>(null)
   const lastGamepadDir = useRef<string | null>(null)
 
@@ -56,147 +44,80 @@ export default function DrivePage() {
     const pollGamepads = () => {
       const gamepads = typeof navigator.getGamepads === 'function' ? navigator.getGamepads() : []
       const gp = Array.from(gamepads).find(g => g !== null)
-      
       if (gp) {
-        // Read D-pad or Axes (Axis 0 is Left/Right, Axis 1 is Up/Down)
         let dir: null | 'forward' | 'backward' | 'left' | 'right' = null
         const threshold = 0.5
-        
-        const isUp = gp.buttons[12]?.pressed || (gp.buttons[7] && gp.buttons[7].pressed) || (gp.axes[1] && gp.axes[1] < -threshold)
-        const isDown = gp.buttons[13]?.pressed || (gp.buttons[6] && gp.buttons[6].pressed) || (gp.axes[1] && gp.axes[1] > threshold)
-        const isLeft = gp.buttons[14]?.pressed || (gp.axes[0] && gp.axes[0] < -threshold)
-        const isRight = gp.buttons[15]?.pressed || (gp.axes[0] && gp.axes[0] > threshold)
-
-        if (isUp) dir = 'forward'
-        else if (isDown) dir = 'backward'
-        else if (isLeft) dir = 'left'
-        else if (isRight) dir = 'right'
-
+        if (gp.buttons[12]?.pressed || (gp.axes[1] && gp.axes[1] < -threshold)) dir = 'forward'
+        else if (gp.buttons[13]?.pressed || (gp.axes[1] && gp.axes[1] > threshold)) dir = 'backward'
+        else if (gp.buttons[14]?.pressed || (gp.axes[0] && gp.axes[0] < -threshold)) dir = 'left'
+        else if (gp.buttons[15]?.pressed || (gp.axes[0] && gp.axes[0] > threshold)) dir = 'right'
         if (dir !== lastGamepadDir.current) {
           lastGamepadDir.current = dir
-          if (dir) {
-            sendCommand(dir)
-          } else {
-            sendCommand('stop')
-          }
+          dir ? sendCommand(dir) : sendCommand('stop')
         }
       }
-      
       gamepadsLoopRef.current = requestAnimationFrame(pollGamepads)
     }
-    
-    // Start polling loop
     gamepadsLoopRef.current = requestAnimationFrame(pollGamepads)
-    
-    return () => {
-      if (gamepadsLoopRef.current) cancelAnimationFrame(gamepadsLoopRef.current)
-    }
+    return () => { if (gamepadsLoopRef.current) cancelAnimationFrame(gamepadsLoopRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id]) // Re-bind if profile changes to ensure sendCommand uses correct DB ID
+  }, [profile?.id])
 
-  // Gamepad specific handlers
-  const handlePointerDown = (cmd: 'forward' | 'backward' | 'left' | 'right') => {
-    sendCommand(cmd)
-  }
-
-  const handlePointerUp = () => {
-    sendCommand('stop')
-  }
-
-  const toggleMode = () => {
-    setControlMode(prev => prev === 'joystick' ? 'gamepad' : 'joystick')
-  }
+  const handlePointerDown = (cmd: 'forward' | 'backward' | 'left' | 'right') => sendCommand(cmd)
+  const handlePointerUp = () => sendCommand('stop')
+  const toggleMode = () => setControlMode(prev => prev === 'joystick' ? 'gamepad' : 'joystick')
 
   return (
-    <div className="home-page animate-fade-in">
-      {/* Camera Feed */}
-      <div className="glass-card panel camera-panel">
-        <div className="section-header">
-          <span className="section-title">📹 Camera Hành Trình</span>
-        </div>
+    <div className="drive-layout animate-fade-in">
+      {/* Camera */}
+      <div className="drive-camera-container organic-card" style={{ padding: 8, overflow: 'hidden' }}>
         <CameraFeed streamUrl={profile?.robot_config?.stream_url} />
       </div>
 
-      <div className="glass-card panel" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div className="section-header" style={{ alignSelf: 'flex-start', width: '100%' }}>
-          <span className="section-title">🕹️ Hệ thống Lái</span>
-        </div>
-        
-        <p className="drive-header-info" style={{ alignSelf: 'flex-start', marginBottom: '24px' }}>
-          {controlMode === 'joystick' 
-            ? 'Di chuyển cần điều khiển để đổi hướng. Nhả tay để phanh.' 
-            : 'Chạm và giữ chân ga/vô lăng để chạy. Nhả tay để phanh an toàn.'}
-        </p>
-
-        {/* Toggle Switch */}
-        <div className="switch-container">
-          <span className={`switch-label ${controlMode === 'joystick' ? 'active' : ''}`} onClick={() => setControlMode('joystick')}>
-            Joystick
-          </span>
-          <div className={`switch-track ${controlMode === 'gamepad' ? 'toggled' : ''}`} onClick={toggleMode}>
-            <div className="switch-thumb"></div>
+      {/* Controls */}
+      <div className="drive-controls-container organic-card" style={{ padding: 'var(--space-5)' }}>
+        {/* Header with toggle */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
+          <div className="section-header" style={{ marginBottom: 0 }}>
+            <span className="section-title">🕹️ Điều khiển</span>
           </div>
-          <span className={`switch-label ${controlMode === 'gamepad' ? 'active' : ''}`} onClick={() => setControlMode('gamepad')}>
-            Racing Gamepad
-          </span>
+          <div className="switch-container" style={{ marginBottom: 0 }}>
+            <span className={`switch-label ${controlMode === 'joystick' ? 'active' : ''}`} onClick={() => setControlMode('joystick')}>Stick</span>
+            <div className={`switch-track ${controlMode === 'gamepad' ? 'toggled' : ''}`} onClick={toggleMode}>
+              <div className="switch-thumb"></div>
+            </div>
+            <span className={`switch-label ${controlMode === 'gamepad' ? 'active' : ''}`} onClick={() => setControlMode('gamepad')}>Pad</span>
+          </div>
         </div>
 
-        {/* Controller View */}
-        {controlMode === 'joystick' ? (
-          <div style={{ padding: '30px 0', display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Joystick 
-              size={150} 
-              sticky={false} 
-              baseColor="rgba(100, 100, 100, 0.2)" 
-              stickColor="var(--color-primary)" 
-              move={handleMove} 
+        {/* Controller area — fixed min-height to prevent layout jump */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 220, padding: 'var(--space-4) 0' }}>
+          {controlMode === 'joystick' ? (
+            <Joystick
+              size={160}
+              sticky={false}
+              baseColor="var(--color-muted)"
+              stickColor="var(--color-primary)"
+              move={handleMove}
               stop={handleStop}
             />
-          </div>
-        ) : (
-          <div className="gamepad-container">
-            <div className="gamepad-pad gamepad-left-cluster">
-              <div 
-                className="gamepad-btn steer-left" 
-                onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('left'); }} 
-                onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
-                onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
-              >
-                ◀
+          ) : (
+            <div style={{ display: 'flex', width: '100%', maxWidth: 420, justifyContent: 'space-between', alignItems: 'center' }}>
+              {/* Steering */}
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('left')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>◀</button>
+                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('right')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>▶</button>
               </div>
-              <div 
-                className="gamepad-btn steer-right" 
-                onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('right'); }} 
-                onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
-                onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
-              >
-                ▶
+              {/* Gas / Brake */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <button className="gamepad-btn" style={{ width: 80, height: 100, borderRadius: 'var(--radius-xl)', background: 'var(--color-primary)', color: 'var(--color-primary-fg)', border: 'none', flexDirection: 'column', fontSize: '1.2rem' }} onPointerDown={() => handlePointerDown('forward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+                  ▲<small style={{ fontSize: '0.6rem', marginTop: 4 }}>GAS</small>
+                </button>
+                <button className="gamepad-btn" style={{ width: 80, height: 64, borderRadius: 'var(--radius-xl)', background: 'var(--color-danger)', color: 'white', border: 'none', fontSize: '1.2rem' }} onPointerDown={() => handlePointerDown('backward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>▼</button>
               </div>
             </div>
-            <div className="gamepad-pad gamepad-right-cluster">
-              <div 
-                className="gamepad-btn pedal-gas" 
-                onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('forward'); }} 
-                onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
-                onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
-                style={{ flexDirection: 'column' }}
-              >
-                <div style={{ fontSize: '1.8rem', marginBottom: '2px', lineHeight: 1 }}>▲</div>
-                <strong style={{ fontSize: '1.1rem', letterSpacing: '2px' }}>GA</strong>
-              </div>
-              <div 
-                className="gamepad-btn pedal-brake" 
-                onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('backward'); }} 
-                onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
-                onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
-                style={{ flexDirection: 'column' }}
-              >
-                <strong style={{ fontSize: '0.8rem', letterSpacing: '1px', opacity: 0.8 }}>PHANH</strong>
-                <div style={{ fontSize: '1.3rem', marginTop: '2px', lineHeight: 1 }}>▼</div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
