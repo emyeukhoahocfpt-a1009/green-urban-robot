@@ -380,17 +380,34 @@ body {
 }
 
 /* ============================================================
-   LOGIN PAGE
+   ORGANIC DECORATIONS (Requested artistic style)
    ============================================================ */
+.blob-bg {
+  position: absolute;
+  z-index: -1;
+  filter: blur(80px);
+  opacity: 0.25;
+  border-radius: 50%;
+  pointer-events: none;
+}
+[data-theme='dark'] .blob-bg { opacity: 0.15; }
+
 .login-page {
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
   padding: var(--space-6);
   background: var(--color-bg);
+  position: relative;
+  overflow: hidden;
 }
 .login-card {
-  width: 100%; max-width: 400px;
-  padding: var(--space-8);
+  width: 100%; max-width: 440px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  z-index: 10;
 }
 .login-logo {
   display: flex; align-items: center; gap: var(--space-3);

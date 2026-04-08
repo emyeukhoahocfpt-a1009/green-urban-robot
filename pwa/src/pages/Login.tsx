@@ -26,9 +26,13 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="organic-card login-card" style={{ padding: 'var(--space-8)' }}>
+      {/* Background Blobs for specific login aesthetic */}
+      <div className="blob-bg" style={{ top: '-10%', left: '-10%', width: '500px', height: '500px', background: 'var(--color-primary)' }} />
+      <div className="blob-bg" style={{ bottom: '-10%', right: '-10%', width: '600px', height: '600px', background: 'var(--color-secondary)' }} />
+
+      <div className="organic-card login-card" style={{ borderRadius: '3rem 5rem 3.2rem 4rem', padding: '3.5rem var(--space-8)' }}>
         <div className="login-logo" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <div className="login-logo-icon" style={{ background: 'var(--color-muted)', width: 80, height: 80, padding: 4 }}>
+          <div className="login-logo-icon" style={{ borderRadius: '2rem', background: 'var(--color-muted)', width: 84, height: 84, padding: 4 }}>
             <img
               src="/logo.png"
               alt="Green Urban Robot Logo"
@@ -36,16 +40,17 @@ export default function Login() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
+                borderRadius: 'inherit'
               }}
             />
           </div>
           <div style={{ marginTop: '1.5rem' }}>
-            <h1 style={{ color: 'var(--color-fg)', fontSize: '2rem' }}>Green Urban Robot</h1>
-            <p style={{ color: 'var(--color-muted-fg)', marginTop: '0.5rem' }}>Hệ thống robot đô thị xanh</p>
+            <h1 style={{ color: 'var(--color-fg)', fontSize: '2rem', fontWeight: 800 }}>Green Urban Robot</h1>
+            <p style={{ color: 'var(--color-muted-fg)', marginTop: '0.4rem', fontWeight: 500 }}>Hệ thống robot đô thị xanh</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
+        <form onSubmit={handleSubmit} style={{ marginTop: '2.5rem' }}>
           {error && <div className="error-message">⚠️ {error}</div>}
 
           <div className="form-group">
@@ -54,7 +59,7 @@ export default function Login() {
               id="email"
               type="text"
               className="input"
-              placeholder="VD: robot001"
+              placeholder="VD: name@example.com"
               value={email}
               onChange={e => setEmail(e.target.value.toLowerCase())}
               required
@@ -81,7 +86,7 @@ export default function Login() {
             type="submit"
             className="btn btn-primary"
             disabled={loading}
-            style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem', height: 48 }}
+            style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem', height: 54, borderRadius: 'var(--radius-full)' }}
           >
             {loading ? (
               <><span className="loader-ring" style={{ width: 16, height: 16, borderWidth: 2 }} /> Đang xử lý...</>
