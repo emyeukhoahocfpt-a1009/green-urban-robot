@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
@@ -47,6 +47,52 @@ export default function DrivePage() {
     lastDir.current = null
     sendCommand('stop')
   }
+
+  // --- HARDWARE GAMEPAD API POLLING ---
+  const gamepadsLoopRef = useRef<number | null>(null)
+  const lastGamepadDir = useRef<string | null>(null)
+
+  useEffect(() => {
+    const pollGamepads = () => {
+      const gamepads = typeof navigator.getGamepads === 'function' ? navigator.getGamepads() : []
+      const gp = Array.from(gamepads).find(g => g !== null)
+      
+      if (gp) {
+        // Read D-pad or Axes (Axis 0 is Left/Right, Axis 1 is Up/Down)
+        let dir: null | 'forward' | 'backward' | 'left' | 'right' = null
+        const threshold = 0.5
+        
+        const isUp = gp.buttons[12]?.pressed || (gp.buttons[7] && gp.buttons[7].pressed) || (gp.axes[1] && gp.axes[1] < -threshold)
+        const isDown = gp.buttons[13]?.pressed || (gp.buttons[6] && gp.buttons[6].pressed) || (gp.axes[1] && gp.axes[1] > threshold)
+        const isLeft = gp.buttons[14]?.pressed || (gp.axes[0] && gp.axes[0] < -threshold)
+        const isRight = gp.buttons[15]?.pressed || (gp.axes[0] && gp.axes[0] > threshold)
+
+        if (isUp) dir = 'forward'
+        else if (isDown) dir = 'backward'
+        else if (isLeft) dir = 'left'
+        else if (isRight) dir = 'right'
+
+        if (dir !== lastGamepadDir.current) {
+          lastGamepadDir.current = dir
+          if (dir) {
+            sendCommand(dir)
+          } else {
+            sendCommand('stop')
+          }
+        }
+      }
+      
+      gamepadsLoopRef.current = requestAnimationFrame(pollGamepads)
+    }
+    
+    // Start polling loop
+    gamepadsLoopRef.current = requestAnimationFrame(pollGamepads)
+    
+    return () => {
+      if (gamepadsLoopRef.current) cancelAnimationFrame(gamepadsLoopRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]) // Re-bind if profile changes to ensure sendCommand uses correct DB ID
 
   // Gamepad specific handlers
   const handlePointerDown = (cmd: 'forward' | 'backward' | 'left' | 'right') => {
