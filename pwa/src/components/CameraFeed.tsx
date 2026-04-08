@@ -65,7 +65,7 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         .catch(err => {
           console.error("Lỗi truy cập Camera Local:", err)
           setImgError(true)
-          setUseLocalCam(false)
+          // Do not kick user out of Local Cam mode, simply show error inside it.
         })
     } else {
       if (localStream) {
@@ -119,8 +119,13 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
               </span>
             </div>
             {imgError && (
-              <div className="camera-offline" style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-                <span>Không thể truy cập Device ID này!</span>
+              <div className="camera-offline" style={{ position: 'absolute', inset: 0, zIndex: 10, flexDirection: 'column', textAlign: 'center', padding: '20px' }}>
+                <span style={{ fontSize: '2rem', marginBottom: '10px' }}>🚫</span>
+                <span style={{ fontWeight: 600 }}>Không thể nạp thiết bị Camera này!</span>
+                <span style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '8px' }}>
+                  Nếu bạn cấu hình <b>iVCam / DroidCam</b>, vui lòng đảm bảo phần mềm chủ đang chạy trên máy tính và điện thoại đã bật App phát kết nối.
+                </span>
+                <button className="btn btn-ghost" style={{ marginTop: '12px' }} onClick={() => { setImgError(false); updateDeviceList(); }}>🔄 Thử lại / Refresh</button>
               </div>
             )}
           </>
