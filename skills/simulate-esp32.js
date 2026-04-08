@@ -12,7 +12,7 @@ const SUPABASE_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const TELEMETRY_URL   = `${SUPABASE_URL}/functions/v1/telemetry`
 
 // ⚠️ THAY user_id bằng UUID của tài khoản bạn tạo trên Supabase
-const USER_ID = 'YOUR_SUPABASE_USER_UUID'
+const USER_ID = 'cac8dc2b-5953-4c4c-a8f3-8c68ffe40f33'
 
 // GPS trail giả lập (Hồ Chí Minh City)
 const BASE_LAT = 10.7769

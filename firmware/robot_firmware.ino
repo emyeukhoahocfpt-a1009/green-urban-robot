@@ -24,7 +24,7 @@ const char* COMMANDS_URL   = "https://glbmjvnhdulpqiavmdai.supabase.co/functions
 const char* SUPABASE_KEY   = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsYm1qdm5oZHVscHFpYXZtZGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzM5MTYsImV4cCI6MjA5MTE0OTkxNn0.CIL6J1cj2NXPY6oqJKv63Un6MTw9h2hakUq7KW5OTOE";
 
 // User ID từ Supabase Auth (lấy từ dashboard sau khi tạo tài khoản)
-const char* USER_ID = "YOUR_SUPABASE_USER_UUID";
+const char* USER_ID = "cac8dc2b-5953-4c4c-a8f3-8c68ffe40f33";
 
 // GPS UART pins (dùng Serial2)
 #define GPS_RX_PIN 16
