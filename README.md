@@ -162,7 +162,13 @@ node skills/simulate-esp32.js
 Xem `.agents/workflows/deploy.md`
 
 ### 4. Camera từ xa
-Xem `.agents/workflows/cloudflare-tunnel.md`
+1. Đảm bảo máy tính chạy PWA và phần cứng ESP32 đang kết nối **cùng một mạng WiFi**.
+2. Tìm địa chỉ IP nội bộ của ESP32 (vd: `192.168.x.x`).
+3. Mở Terminal và chạy lệnh thiết lập đường hầm Cloudflare Tunnel (yêu cầu cài đặt sẵn `cloudflared` bằng lệnh `winget install Cloudflare.cloudflared`):
+   ```bash
+   cloudflared tunnel --url http://192.168.x.x:80
+   ```
+4. Khi quá trình chạy thành công, một đường dẫn tạm thời sẽ được tạo ra (ví dụ: `https://abc-xyz-123.trycloudflare.com`). Bạn copy link này, đổi thành `https://abc-xyz-123.trycloudflare.com/stream`, sau đó dán vào ô **Camera Stream** tại **Dashboard** và nhấn **Lưu**.
 
 ## ESP32 Setup
 
