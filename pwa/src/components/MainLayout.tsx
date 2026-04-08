@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import ConnectionBadge from './ConnectionBadge'
@@ -10,6 +10,9 @@ export type OutletContextType = {
 
 export default function MainLayout() {
   const { profile, signOut } = useAuthStore()
+  const location = useLocation()
+  const isMap = location.pathname === '/map'
+
   const [lastHeartbeat, setLastHeartbeat] = useState<string | null>(null)
   const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'danger' | 'warning' } | null>(null)
   const notifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -102,8 +105,8 @@ export default function MainLayout() {
       </header>
 
       {/* Main Content Area */}
-      <main className="app-main">
-        <div className="container" style={{ paddingBottom: '80px' }}>
+      <main className={`app-main ${isMap ? 'no-padding' : ''}`}>
+        <div className={`container ${isMap ? 'full-bleed' : ''}`} style={{ paddingBottom: isMap ? '0' : '80px' }}>
           <Outlet context={{ showNotif } satisfies OutletContextType} />
         </div>
       </main>

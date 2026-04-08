@@ -111,23 +111,24 @@ export default function GpsMap() {
   }
 
   return (
-    <div>
-      <div id="gps-map" ref={mapRef} className="map-wrapper" />
-      <div className="map-actions">
-        {currentPos && (
-          <>
+    <div className="map-container-full">
+      <div id="gps-map" ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      <div className="map-floating-overlay">
+        {currentPos ? (
+          <div className="glass-card floating-card">
             <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
               📍 {currentPos.lat.toFixed(6)}, {currentPos.lng.toFixed(6)}
             </span>
-            <button id="btn-google-maps" className="btn btn-ghost" onClick={openGoogleMaps} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-              🗺️ Mở Google Maps
+            <button className="btn btn-primary btn-sm" onClick={openGoogleMaps}>
+              🗺️ Mở Maps
             </button>
-          </>
-        )}
-        {!currentPos && (
-          <span style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>
-            Chờ tín hiệu GPS từ robot...
-          </span>
+          </div>
+        ) : (
+          <div className="glass-card floating-card">
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>
+              Chờ tín hiệu GPS...
+            </span>
+          </div>
         )}
       </div>
     </div>
