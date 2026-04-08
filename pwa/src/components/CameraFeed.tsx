@@ -16,22 +16,51 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
   const [useLocalCam, setUseLocalCam] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  
+  // Advanced Camera Controls
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('')
+  const [isMirrored, setIsMirrored] = useState(false)
+  const [isContain, setIsContain] = useState(false)
 
   useEffect(() => {
     if (initialUrl && !useLocalCam) { setUrl(initialUrl); setInputUrl(initialUrl) }
   }, [initialUrl, useLocalCam])
 
+  // Request camera device list
+  const updateDeviceList = async () => {
+    try {
+      const allDevices = await navigator.mediaDevices.enumerateDevices()
+      const videoDevices = allDevices.filter(device => device.kind === 'videoinput')
+      setDevices(videoDevices)
+      if (!selectedDeviceId && videoDevices.length > 0) {
+        setSelectedDeviceId(videoDevices[0].deviceId)
+      }
+    } catch (err) {
+      console.error("Lỗi khi load danh sách camera: ", err)
+    }
+  }
+
+  // Effect to request stream when local cam or device changes
   useEffect(() => {
     let streamRef: MediaStream | null = null;
+
     if (useLocalCam) {
       setImgError(false)
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      
+      const constraints: MediaStreamConstraints = {
+        video: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : { facingMode: 'environment' }
+      }
+
+      navigator.mediaDevices.getUserMedia(constraints)
         .then(stream => {
           setLocalStream(stream)
           streamRef = stream
           if (videoRef.current) {
             videoRef.current.srcObject = stream
           }
+          // After granting permission, we can actually see device names. Let's refresh.
+          updateDeviceList()
         })
         .catch(err => {
           console.error("Lỗi truy cập Camera Local:", err)
@@ -50,7 +79,8 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         streamRef.getTracks().forEach(track => track.stop())
       }
     }
-  }, [useLocalCam])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useLocalCam, selectedDeviceId])
 
   const saveUrl = async () => {
     if (!profile) return
@@ -65,7 +95,7 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
 
   return (
     <div>
-      <div className="camera-feed-wrapper">
+      <div className="camera-feed-wrapper" style={{ position: 'relative', overflow: 'hidden' }}>
         {useLocalCam ? (
           <>
             <video 
@@ -74,16 +104,23 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
               playsInline 
               muted 
               className="camera-img" 
-              style={{ objectFit: 'cover' }} 
+              style={{ 
+                objectFit: isContain ? 'contain' : 'cover',
+                transform: isMirrored ? 'scaleX(-1)' : 'scaleX(1)',
+                transition: 'transform 0.3s ease',
+                backgroundColor: '#000',
+                width: '100%',
+                height: '100%'
+              }} 
             />
             <div className="camera-overlay">
               <span className="badge badge-online" style={{ background: 'var(--color-info)' }}>
-                <span className="pulse-dot" style={{ background: '#fff' }} /> LOCAL TEST
+                <span className="pulse-dot" style={{ background: '#fff' }} /> TEST CAM
               </span>
             </div>
             {imgError && (
               <div className="camera-offline" style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-                <span>Không thể truy cập quyền Camera!</span>
+                <span>Không thể truy cập Device ID này!</span>
               </div>
             )}
           </>
@@ -114,7 +151,42 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         )}
       </div>
 
-      <div className="stream-url-input" style={{ flexWrap: 'wrap', gap: '8px' }}>
+      {useLocalCam && devices.length > 0 && (
+        <div className="glass-card panel" style={{ padding: '8px', marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <select 
+            className="input" 
+            style={{ flex: 1, minWidth: '150px', padding: '6px', fontSize: '0.9rem' }}
+            value={selectedDeviceId}
+            onChange={(e) => setSelectedDeviceId(e.target.value)}
+          >
+            {devices.map((d, i) => (
+              <option key={d.deviceId} value={d.deviceId}>
+                {d.label || `Camera ${i + 1} (iVCam / App)`}
+              </option>
+            ))}
+          </select>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className={`btn ${isMirrored ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => setIsMirrored(!isMirrored)}
+              style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              title="Lật ngang khung hình"
+            >
+              🔄 Lật / Gương
+            </button>
+            <button 
+              className={`btn ${isContain ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => setIsContain(!isContain)}
+              style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              title="Cân bằng tỷ lệ Full/Fit tránh viền đen"
+            >
+              📐 Mở Rộng
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="stream-url-input" style={{ flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
         <input
           id="stream-url-input"
           className="input"
@@ -127,13 +199,13 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         />
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
-            className="btn btn-ghost"
+            className={`btn ${useLocalCam ? 'btn-danger' : 'btn-ghost'}`}
             onClick={() => setUseLocalCam(!useLocalCam)}
             title="Dùng Camera của điện thoại/laptop này làm camera ảo để test"
-            style={{ padding: '8px 12px' }}
+            style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}
             type="button"
           >
-            {useLocalCam ? '❌ Tắt Test Cam' : '📱 Dùng Local Cam'}
+            {useLocalCam ? '❌ Tắt Test Cam' : '📱 Mở Trình Test Cam'}
           </button>
           
           <button
@@ -141,7 +213,7 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
             className="btn btn-primary"
             onClick={saveUrl}
             disabled={saving || useLocalCam}
-            style={{ padding: '8px 16px' }}
+            style={{ padding: '8px 16px', whiteSpace: 'nowrap' }}
           >
             {saving ? '...' : '💾 Lưu'}
           </button>
