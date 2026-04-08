@@ -120,6 +120,21 @@ void motorStop() {
   digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, LOW);
 }
 
+void motorBackward() {
+  digitalWrite(MOTOR_A1, LOW); digitalWrite(MOTOR_A2, HIGH);
+  digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, HIGH);
+}
+
+void motorLeft() {
+  digitalWrite(MOTOR_A1, LOW); digitalWrite(MOTOR_A2, HIGH);
+  digitalWrite(MOTOR_B1, HIGH); digitalWrite(MOTOR_B2, LOW);
+}
+
+void motorRight() {
+  digitalWrite(MOTOR_A1, HIGH); digitalWrite(MOTOR_A2, LOW);
+  digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, HIGH);
+}
+
 // Simplified "go home" — quay 180° rồi chạy thẳng 5s
 void motorGoHome() {
   // Quay phải 2s
@@ -203,10 +218,22 @@ void pollCommands() {
       Serial.println("CMD: stop");
       running = false;
       motorStop();
-    } else if (strcmp(cmd, "start") == 0) {
-      Serial.println("CMD: start");
+    } else if (strcmp(cmd, "start") == 0 || strcmp(cmd, "forward") == 0) {
+      Serial.println("CMD: forward");
       running = true;
       motorForward();
+    } else if (strcmp(cmd, "backward") == 0) {
+      Serial.println("CMD: backward");
+      running = true;
+      motorBackward();
+    } else if (strcmp(cmd, "left") == 0) {
+      Serial.println("CMD: left");
+      running = true;
+      motorLeft();
+    } else if (strcmp(cmd, "right") == 0) {
+      Serial.println("CMD: right");
+      running = true;
+      motorRight();
     }
   }
   http.end();

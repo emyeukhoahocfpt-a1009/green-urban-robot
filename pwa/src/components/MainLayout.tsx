@@ -116,6 +116,11 @@ export default function MainLayout() {
             <span className="nav-label">Điều khiển</span>
           </NavLink>
           
+          <NavLink to="/drive" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <span className="nav-icon">🕹️</span>
+            <span className="nav-label">Lái xe</span>
+          </NavLink>
+          
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-icon">🗺️</span>
             <span className="nav-label">Bản đồ</span>

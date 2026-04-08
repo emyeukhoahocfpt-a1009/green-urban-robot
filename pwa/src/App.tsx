@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import MainLayout from './components/MainLayout'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import DrivePage from './pages/DrivePage'
 import MapPage from './pages/MapPage'
 import SchedulePage from './pages/SchedulePage'
 
@@ -44,6 +45,7 @@ export default function App() {
         >
           {/* Nested Routes */}
           <Route index element={<Home />} />
+          <Route path="drive" element={<DrivePage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="schedule" element={<SchedulePage />} />
         </Route>
