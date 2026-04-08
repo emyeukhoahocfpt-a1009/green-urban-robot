@@ -31,102 +31,107 @@ Green_Urban_Robot/
 
 ```mermaid
 graph TD
-    %% Global styles
-    classDef frontend fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#1a237e;
-    classDef backend fill:#e0f2f1,stroke:#009688,stroke-width:2px,color:#004d40;
-    classDef bridge fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#e65100;
-    classDef hardware fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#b71c1c;
+    classDef frontend fill:#f3e5f5,stroke:#9575cd,stroke-width:2px,color:#1a237e;
+    classDef backend fill:#e0f2f1,stroke:#4db6ac,stroke-width:2px,color:#004d40;
+    classDef bridge fill:#fff8e1,stroke:#ffd54f,stroke-width:2px,color:#e65100;
+    classDef hardware fill:#ffebee,stroke:#e57373,stroke-width:2px,color:#b71c1c;
 
-    subgraph Frontend ["Frontend — PWA (React + Vite)"]
+    subgraph FE ["Frontend — PWA (React + Vite)"]
         direction TB
-        PWA["Vercel · Service Worker · Push Notifications"]
-        subgraph F_Comp [" "]
+        FE_DESC["Vercel · Service Worker · Push Notifications"]
+        subgraph FE_C [" "]
             direction LR
-            A1["Camera feed"]
-            A2["GPS + Map"]
-            A3["Sensors HUD"]
-            A4["Schedule"]
-            A5["Admin / Settings"]
+            FE1["Camera feed"]
+            FE2["GPS + Map"]
+            FE3["Sensors HUD"]
+            FE4["Schedule"]
+            FE5["Admin / Settings"]
         end
-        PWA --- F_Comp
     end
 
-    subgraph Backend ["Backend — Supabase"]
+    subgraph BE ["Backend — Supabase"]
         direction TB
-        Supa["Auth · PostgreSQL · Realtime · Storage · Edge Functions"]
-        subgraph B_Comp [" "]
+        BE_DESC["Auth · PostgreSQL · Realtime · Storage · Edge Functions"]
+        subgraph BE_C [" "]
             direction LR
-            B1["Auth (JWT)"]
-            B2["Realtime channel"]
-            B3["Robot configs"]
-            B4["GPS history"]
-            B5["Push alerts"]
+            BE1["Auth (JWT)"]
+            BE2["Realtime channel"]
+            BE3["Robot configs"]
+            BE4["GPS history"]
+            BE5["Push alerts"]
         end
-        Supa --- B_Comp
     end
 
-    subgraph Bridge ["ESP32 Bridge Server (Node.js / Raspberry Pi)"]
+    subgraph BR ["ESP32 Bridge Server (Node.js / Raspberry Pi)"]
         direction TB
-        Node["WebSocket → Supabase Realtime · MJPEG stream proxy · BLE bridge"]
-        subgraph C_Comp [" "]
+        BR_DESC["WebSocket → Supabase Realtime · MJPEG stream proxy · BLE bridge"]
+        subgraph BR_C [" "]
             direction LR
-            C1["WS server :8080"]
-            C2["MJPEG proxy :8081"]
-            C3["BLE / serial link"]
-            C4["Supabase realtime pub"]
+            BR1["WS server :8080"]
+            BR2["MJPEG proxy :8081"]
+            BR3["BLE / serial link"]
+            BR4["Supabase realtime pub"]
         end
-        Node --- C_Comp
     end
 
-    subgraph Hardware ["ESP32 — Robot Hardware"]
+    subgraph HW ["ESP32 — Robot Hardware"]
         direction TB
-        ESP["WiFi / BLE · FPV cam · GPS · BMS · Sensors · Motor control"]
-        subgraph D_Comp [" "]
+        HW_DESC["WiFi / BLE · FPV cam · GPS · BMS · Sensors · Motor control"]
+        subgraph HW_C [" "]
             direction LR
-            D1["FPV camera"]
-            D2["GPS NEO"]
-            D3["BMS (pin %)"]
-            D4["Humidity/Temp"]
-            D5["Motor driver"]
-            D6["Auto-home"]
+            HW1["FPV camera"]
+            HW2["GPS NEO"]
+            HW3["BMS (pin %)"]
+            HW4["Humidity/Temp"]
+            HW5["Motor driver"]
+            HW6["Auto-home"]
         end
-        ESP --- D_Comp
     end
 
-    Frontend --> Backend
-    Backend --> Bridge
-    Bridge --> Hardware
+    FE --> BE
+    BE --> BR
+    BR --> HW
 
-    class Frontend,PWA,A1,A2,A3,A4,A5 frontend;
-    class Backend,Supa,B1,B2,B3,B4,B5 backend;
-    class Bridge,Node,C1,C2,C3,C4 bridge;
-    class Hardware,ESP,D1,D2,D3,D4,D5,D6 hardware;
+    class FE,FE_DESC,FE1,FE2,FE3,FE4,FE5 frontend;
+    class BE,BE_DESC,BE1,BE2,BE3,BE4,BE5 backend;
+    class BR,BR_DESC,BR1,BR2,BR3,BR4 bridge;
+    class HW,HW_DESC,HW1,HW2,HW3,HW4,HW5,HW6 hardware;
 ```
 
 ### Luồng dữ liệu chính
 
 ```mermaid
 graph TD
-    subgraph S_Flow ["Sensor Data"]
-        S1[ESP32] --> S2[Bridge] --> S3[Supabase] --> S4[Realtime sub] --> S5[Dashboard update]
-    end
-
-    subgraph C_Flow ["Command"]
-        C1[User click] --> C2[Supabase] --> C3[Edge Function] --> C4[ESP32 executes]
-    end
-
-    subgraph A_Flow ["Alerts"]
-        A1[BMS trigger ESP32] --> A2[Auto-home logic] --> A3[Push notification]
-    end
-
     classDef sensor fill:#e3f2fd,stroke:#2196f3,stroke-width:1px;
     classDef command fill:#f1f8e9,stroke:#8bc34a,stroke-width:1px;
     classDef alert fill:#fbe9e7,stroke:#ff5722,stroke-width:1px;
 
-    class S1,S2,S3,S4,S5 sensor;
-    class C1,C2,C3,C4 command;
-    class A1,A2,A3 alert;
+    subgraph S_Flow ["Sensor data"]
+        direction LR
+        S1["Sensor data<br/>ESP32 → Bridge → Supabase"] --> S2["Realtime sub<br/>Supabase → PWA (ws)"] --> S3["Dashboard update<br/>React state re-render"]
+    end
+
+    subgraph C_Flow ["Command"]
+        direction LR
+        C1["Command<br/>User click → Supabase"] --> C2["Edge Function<br/>Validate + relay"] --> C3["ESP32 executes<br/>WebSocket → motor"]
+    end
+
+    subgraph A_Flow ["Alerts"]
+        direction LR
+        A1["Pin thấp / hết giờ<br/>BMS trigger ESP32"] --> A2["Auto-home logic<br/>Bridge → Supabase alert"] --> A3["Push notification<br/>FCM → điện thoại"]
+    end
+
+    class S_Flow,S1,S2,S3 sensor;
+    class C_Flow,C1,C2,C3 command;
+    class A_Flow,A1,A2,A3 alert;
 ```
+
+**Tech stack:** React + Vite · Supabase · Vercel · Node.js bridge · ESP32 Arduino · WebSocket · FCM · Leaflet.js  
+**Auth:** Supabase Auth (email/password) · RLS policies · Admin role in profiles table  
+**Camera:** MJPEG stream qua Bridge Server (ESP32 → Node.js → `<img src>` trong PWA)  
+**GPS history + schedule config:** lưu Supabase · mở Google Maps qua coordinates link
+
+---
 
 ## Tính năng
 
@@ -157,7 +162,13 @@ node skills/simulate-esp32.js
 Xem `.agents/workflows/deploy.md`
 
 ### 4. Camera từ xa
-Xem `.agents/workflows/cloudflare-tunnel.md`
+1. Đảm bảo máy tính chạy PWA và phần cứng ESP32 đang kết nối **cùng một mạng WiFi**.
+2. Tìm địa chỉ IP nội bộ của ESP32 (vd: `192.168.x.x`).
+3. Mở Terminal và chạy lệnh thiết lập đường hầm Cloudflare Tunnel (yêu cầu cài đặt sẵn `cloudflared` bằng lệnh `winget install Cloudflare.cloudflared`):
+   ```bash
+   cloudflared tunnel --url http://192.168.x.x:80
+   ```
+4. Khi quá trình chạy thành công, một đường dẫn tạm thời sẽ được tạo ra (ví dụ: `https://abc-xyz-123.trycloudflare.com`). Bạn copy link này, đổi thành `https://abc-xyz-123.trycloudflare.com/stream`, sau đó dán vào ô **Camera Stream** tại **Dashboard** và nhấn **Lưu**.
 
 ## ESP32 Setup
 
