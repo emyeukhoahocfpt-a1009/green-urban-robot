@@ -26,13 +26,9 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      {/* Background Blobs for Login Identity */}
-      <div className="blob-bg" style={{ top: '10%', left: '10%', background: 'var(--color-primary)' }} />
-      <div className="blob-bg" style={{ bottom: '10%', right: '10%', width: '400px', height: '400px', background: 'var(--color-secondary)' }} />
-      
-      <div className="organic-card login-card" style={{ borderRadius: '3rem 5rem 3rem 4rem', padding: '3rem' }}>
+      <div className="organic-card login-card" style={{ padding: 'var(--space-8)' }}>
         <div className="login-logo" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <div className="login-logo-icon" style={{ borderRadius: 'var(--radius-blob)', background: 'var(--color-muted)', width: 80, height: 80, padding: 4 }}>
+          <div className="login-logo-icon" style={{ background: 'var(--color-muted)', width: 80, height: 80, padding: 4 }}>
             <img
               src="/logo.png"
               alt="Green Urban Robot Logo"
@@ -40,13 +36,12 @@ export default function Login() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
-                borderRadius: 'var(--radius-blob)',
               }}
             />
           </div>
           <div style={{ marginTop: '1.5rem' }}>
-            <h1 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-fg)', fontSize: '2rem' }}>Green Urban Robot</h1>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-muted-fg)', marginTop: '0.5rem' }}>Hệ thống robot đô thị xanh</p>
+            <h1 style={{ color: 'var(--color-fg)', fontSize: '2rem' }}>Green Urban Robot</h1>
+            <p style={{ color: 'var(--color-muted-fg)', marginTop: '0.5rem' }}>Hệ thống robot đô thị xanh</p>
           </div>
         </div>
 
@@ -86,7 +81,7 @@ export default function Login() {
             type="submit"
             className="btn btn-primary"
             disabled={loading}
-            style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem', height: '3.5rem' }}
+            style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem', height: 48 }}
           >
             {loading ? (
               <><span className="loader-ring" style={{ width: 16, height: 16, borderWidth: 2 }} /> Đang xử lý...</>
