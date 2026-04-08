@@ -988,18 +988,25 @@ body::before {
 }
 
 .gamepad-pad {
-  display: grid;
+  display: flex;
   gap: var(--space-2);
 }
 
 .gamepad-left-cluster {
-  grid-template-columns: repeat(2, 60px);
-  grid-template-rows: 60px;
+  flex-direction: row;
+}
+
+.gamepad-left-cluster .gamepad-btn {
+  width: 70px;
+  height: 70px;
 }
 
 .gamepad-right-cluster {
-  grid-template-columns: 60px;
-  grid-template-rows: repeat(2, 60px);
+  flex-direction: column;
+}
+
+.gamepad-right-cluster .gamepad-btn {
+  width: 80px;
 }
 
 .gamepad-btn {
@@ -1036,7 +1043,7 @@ body::before {
 
 .gamepad-btn.pedal-gas { 
   border-radius: 40px 40px 12px 12px; 
-  height: 100px; 
+  height: 110px; 
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #0a1510;
@@ -1049,7 +1056,7 @@ body::before {
 
 .gamepad-btn.pedal-brake { 
   border-radius: 12px 12px 40px 40px; 
-  height: 70px; 
+  height: 80px; 
   background: var(--color-danger-dim);
   border-color: var(--color-danger);
   color: var(--color-danger);
@@ -1061,7 +1068,8 @@ body::before {
 }
 
 @media (max-width: 600px) {
-  .gamepad-left-cluster { grid-template-columns: repeat(2, 75px); grid-template-rows: 75px; margin-bottom: 30px; }
-  .gamepad-right-cluster { grid-template-columns: 85px; grid-template-rows: 95px 75px; }
+  .gamepad-left-cluster .gamepad-btn { width: 75px; height: 75px; }
+  .gamepad-right-cluster .gamepad-btn { width: 85px; }
+  .gamepad-left-cluster { margin-bottom: 30px; }
 }
 
