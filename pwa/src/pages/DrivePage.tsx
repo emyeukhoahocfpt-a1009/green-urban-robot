@@ -97,11 +97,11 @@ export default function DrivePage() {
 
         {/* Controller View */}
         {controlMode === 'joystick' ? (
-          <div style={{ padding: '20px 0', display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div style={{ padding: '30px 0', display: 'flex', justifyContent: 'center', width: '100%' }}>
             <Joystick 
-              size={120} 
+              size={150} 
               sticky={false} 
-              baseColor="var(--glass-bg)" 
+              baseColor="rgba(100, 100, 100, 0.2)" 
               stickColor="var(--color-primary)" 
               move={handleMove} 
               stop={handleStop}
@@ -116,7 +116,7 @@ export default function DrivePage() {
                 onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
                 onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
               >
-                ⬅️
+                ◀
               </div>
               <div 
                 className="gamepad-btn steer-right" 
@@ -124,7 +124,7 @@ export default function DrivePage() {
                 onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
                 onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
               >
-                ➡️
+                ▶
               </div>
             </div>
             <div className="gamepad-pad gamepad-right-cluster">
@@ -133,18 +133,20 @@ export default function DrivePage() {
                 onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('forward'); }} 
                 onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
                 onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
-                style={{ fontSize: '1rem', flexDirection: 'column' }}
+                style={{ flexDirection: 'column' }}
               >
-                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>⬆️</div>
-                <strong style={{ opacity: 0.8 }}>GA</strong>
+                <div style={{ fontSize: '1.8rem', marginBottom: '2px', lineHeight: 1 }}>▲</div>
+                <strong style={{ fontSize: '1.1rem', letterSpacing: '2px' }}>GA</strong>
               </div>
               <div 
                 className="gamepad-btn pedal-brake" 
                 onPointerDown={(e) => { e.currentTarget.classList.add('pressed'); handlePointerDown('backward'); }} 
                 onPointerUp={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }} 
                 onPointerLeave={(e) => { e.currentTarget.classList.remove('pressed'); handlePointerUp(); }}
+                style={{ flexDirection: 'column' }}
               >
-                ⬇️
+                <strong style={{ fontSize: '0.8rem', letterSpacing: '1px', opacity: 0.8 }}>PHANH</strong>
+                <div style={{ fontSize: '1.3rem', marginTop: '2px', lineHeight: 1 }}>▼</div>
               </div>
             </div>
           </div>

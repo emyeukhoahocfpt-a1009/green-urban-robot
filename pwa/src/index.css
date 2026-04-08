@@ -1003,37 +1003,65 @@ body::before {
 }
 
 .gamepad-btn {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   color: var(--color-text);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.1s ease-out;
-  box-shadow: var(--shadow-md);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   user-select: none;
   -webkit-user-select: none;
-  touch-action: none; /* Prevent zooming and scrolling */
+  touch-action: none;
 }
 
 .gamepad-btn:active, .gamepad-btn.pressed {
-  transform: scale(0.92);
+  transform: scale(0.94);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gamepad-btn.steer-left { border-radius: 40px 12px 12px 40px; }
+.gamepad-btn.steer-right { border-radius: 12px 40px 40px 12px; }
+
+.gamepad-btn.steer-left:active, .gamepad-btn.steer-left.pressed,
+.gamepad-btn.steer-right:active, .gamepad-btn.steer-right.pressed {
   background: var(--color-primary-dim);
   border-color: var(--color-primary);
   color: var(--color-primary);
-  box-shadow: 0 0 15px var(--color-primary-glow);
 }
 
-.gamepad-btn.steer-left { border-radius: var(--radius-full) var(--radius-md) var(--radius-md) var(--radius-full); }
-.gamepad-btn.steer-right { border-radius: var(--radius-md) var(--radius-full) var(--radius-full) var(--radius-md); }
-.gamepad-btn.pedal-gas { border-radius: var(--radius-full) var(--radius-full) var(--radius-md) var(--radius-md); height: 80px; }
-.gamepad-btn.pedal-brake { border-radius: var(--radius-md) var(--radius-md) var(--radius-full) var(--radius-full); height: 60px; }
+.gamepad-btn.pedal-gas { 
+  border-radius: 40px 40px 12px 12px; 
+  height: 100px; 
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #0a1510;
+  box-shadow: 0 8px 16px var(--color-primary-dim);
+}
+.gamepad-btn.pedal-gas:active, .gamepad-btn.pedal-gas.pressed {
+  background: #3df070;
+  box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.gamepad-btn.pedal-brake { 
+  border-radius: 12px 12px 40px 40px; 
+  height: 70px; 
+  background: var(--color-danger-dim);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.gamepad-btn.pedal-brake:active, .gamepad-btn.pedal-brake.pressed {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+}
 
 @media (max-width: 600px) {
-  .gamepad-left-cluster { grid-template-columns: repeat(2, 70px); grid-template-rows: 70px; margin-bottom: 30px; }
-  .gamepad-right-cluster { grid-template-columns: 75px; grid-template-rows: 80px 70px; }
+  .gamepad-left-cluster { grid-template-columns: repeat(2, 75px); grid-template-rows: 75px; margin-bottom: 30px; }
+  .gamepad-right-cluster { grid-template-columns: 85px; grid-template-rows: 95px 75px; }
 }
 
