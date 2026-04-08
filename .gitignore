@@ -35,3 +35,6 @@ lerna-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Supabase
+supabase/.temp/
