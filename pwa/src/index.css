@@ -338,7 +338,7 @@ input[type="datetime-local"].input {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  /* Pills hug the FAB tightly */
+  /* Zero gap — pills touch the FAB directly */
   gap: 0;
   padding: 0 clamp(8px, 2vw, 20px);
   padding-bottom: max(16px, var(--safe-bottom));
@@ -368,18 +368,18 @@ input[type="datetime-local"].input {
 }
 
 /*
-  Concave inner arc — radius 30px, tighter to match FAB curvature.
-  Circle center is placed just outside the pill edge (+2px)
-  so the arc starts right at the pill border.
+  Concave arc — circle center placed at the FAB center (30px outside pill edge),
+  radius 36px = FAB radius (30px) + border (4px) + 2px breathing room.
+  This makes the arc hug the FAB perfectly with no extra gap.
 */
 .nav-pill-left {
   -webkit-mask-image: radial-gradient(
-    circle 32px at 100% 50%,
+    circle 36px at calc(100% + 30px) 50%,
     transparent 100%,
     black 0
   );
   mask-image: radial-gradient(
-    circle 32px at 100% 50%,
+    circle 36px at calc(100% + 30px) 50%,
     transparent 100%,
     black 0
   );
@@ -387,12 +387,12 @@ input[type="datetime-local"].input {
 
 .nav-pill-right {
   -webkit-mask-image: radial-gradient(
-    circle 32px at 0% 50%,
+    circle 36px at calc(0% - 30px) 50%,
     transparent 100%,
     black 0
   );
   mask-image: radial-gradient(
-    circle 32px at 0% 50%,
+    circle 36px at calc(0% - 30px) 50%,
     transparent 100%,
     black 0
   );
