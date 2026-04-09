@@ -173,7 +173,7 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         <div className="glass-card panel" style={{ padding: '8px', marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <select 
             className="input" 
-            style={{ flex: 1, minWidth: '150px', fontSize: '0.9rem' }}
+            style={{ flex: 1, minWidth: '150px' }}
             value={selectedDeviceId}
             onChange={(e) => setSelectedDeviceId(e.target.value)}
           >
