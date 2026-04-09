@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Wifi, WifiOff, CloudOff } from 'lucide-react'
 
 interface Props {
   lastHeartbeat: string | null
@@ -19,9 +20,9 @@ export default function ConnectionBadge({ lastHeartbeat }: Props) {
   }, [lastHeartbeat])
 
   const config = {
-    online:  { cls: 'badge-online',  icon: '📡', label: 'Online' },
-    offline: { cls: 'badge-offline', icon: '❌', label: 'Offline' },
-    unknown: { cls: 'badge-warning', icon: '❓', label: 'Chưa kết nối' }
+    online:  { cls: 'badge-online',  icon: <Wifi size={14} />, label: 'Online' },
+    offline: { cls: 'badge-offline', icon: <WifiOff size={14} />, label: 'Offline' },
+    unknown: { cls: 'badge-warning', icon: <CloudOff size={14} />, label: 'Chưa kết nối' }
   }[status]
 
   return (

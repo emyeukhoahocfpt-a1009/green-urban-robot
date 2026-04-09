@@ -3,6 +3,15 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import ConnectionBadge from './ConnectionBadge'
+import { 
+  Bot, 
+  Gamepad2, 
+  Map as MapIcon, 
+  Calendar, 
+  LogOut, 
+  Sun, 
+  Moon 
+} from 'lucide-react'
 
 export type OutletContextType = {
   showNotif: (msg: string, type?: 'success' | 'danger' | 'warning') => void
@@ -93,11 +102,12 @@ export default function MainLayout() {
             onClick={toggleTheme}
             style={{ width: 34, height: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--radius-md)' }}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
           </button>
 
-          <button id="btn-signout" className="btn btn-ghost" onClick={signOut} style={{ fontSize: '0.8rem' }}>
-            Đăng xuất
+          <button id="btn-signout" className="btn btn-ghost btn-sm" onClick={signOut} style={{ gap: 'var(--space-2)' }}>
+            <LogOut size={14} strokeWidth={2.5} />
+            <span className="hide-mobile">Đăng xuất</span>
           </button>
         </div>
       </header>
@@ -111,22 +121,22 @@ export default function MainLayout() {
       <nav className="bottom-nav">
         <div className="bottom-nav-container">
           <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🤖</span>
+            <Bot className="nav-icon-svg" />
             <span className="nav-label">Robot</span>
           </NavLink>
 
           <NavLink to="/drive" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🕹️</span>
+            <Gamepad2 className="nav-icon-svg" />
             <span className="nav-label">Lái xe</span>
           </NavLink>
 
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🗺️</span>
+            <MapIcon className="nav-icon-svg" />
             <span className="nav-label">Bản đồ</span>
           </NavLink>
 
           <NavLink to="/schedule" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">📅</span>
+            <Calendar className="nav-icon-svg" />
             <span className="nav-label">Lịch trình</span>
           </NavLink>
         </div>

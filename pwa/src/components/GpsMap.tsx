@@ -3,6 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { supabase, type Telemetry } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
+import { MapPin, Navigation } from 'lucide-react'
 
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
@@ -130,16 +131,17 @@ export default function GpsMap() {
         <div className="floating-card">
           {currentPos ? (
             <>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-muted-fg)', fontFamily: 'var(--font-mono)' }}>
-                📍 {currentPos.lat.toFixed(6)}, {currentPos.lng.toFixed(6)}
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-fg)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Navigation size={14} fill="var(--color-primary)" stroke="none" />
+                {currentPos.lat.toFixed(6)}, {currentPos.lng.toFixed(6)}
               </span>
-              <button className="btn btn-primary btn-sm" onClick={openGoogleMaps}>
+              <button className="btn btn-primary btn-sm" onClick={openGoogleMaps} style={{ padding: '4px 12px' }}>
                 Mở Maps
               </button>
             </>
           ) : (
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-muted-fg)' }}>
-              📍 HCM City (mặc định) — Chờ tín hiệu GPS từ Robot
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-muted-fg)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MapPin size={14} /> Chờ tín hiệu GPS từ Robot
             </span>
           )}
         </div>

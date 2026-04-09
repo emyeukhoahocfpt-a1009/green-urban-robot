@@ -5,6 +5,13 @@ import { supabase } from '../lib/supabase'
 import CameraFeed from '../components/CameraFeed'
 import { Joystick } from 'react-joystick-component'
 import type { OutletContextType } from '../components/MainLayout'
+import { 
+  Gamepad2, 
+  ChevronLeft, 
+  ChevronRight, 
+  ChevronUp, 
+  ChevronDown 
+} from 'lucide-react'
 
 export default function DrivePage() {
   const { profile } = useAuthStore()
@@ -79,7 +86,10 @@ export default function DrivePage() {
         {/* Header with toggle */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
           <div className="section-header" style={{ marginBottom: 0 }}>
-            <span className="section-title">🕹️ Điều khiển</span>
+            <span className="section-title">
+              <Gamepad2 size={16} strokeWidth={2.5} style={{ verticalAlign: 'middle', marginRight: 8, color: 'var(--color-primary)' }} />
+              Điều khiển
+            </span>
           </div>
           <div className="switch-container" style={{ marginBottom: 0 }}>
             <span className={`switch-label ${controlMode === 'joystick' ? 'active' : ''}`} onClick={() => setControlMode('joystick')}>Stick</span>
@@ -105,15 +115,22 @@ export default function DrivePage() {
             <div style={{ display: 'flex', width: '100%', maxWidth: 420, justifyContent: 'space-between', alignItems: 'center' }}>
               {/* Steering */}
               <div style={{ display: 'flex', gap: 12 }}>
-                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('left')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>◀</button>
-                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('right')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>▶</button>
+                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('left')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+                  <ChevronLeft size={32} />
+                </button>
+                <button className="gamepad-btn" style={{ width: 72, height: 72, borderRadius: 'var(--radius-lg)', background: 'var(--color-muted)', border: '1px solid var(--color-border)', color: 'var(--color-fg)' }} onPointerDown={() => handlePointerDown('right')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+                  <ChevronRight size={32} />
+                </button>
               </div>
               {/* Gas / Brake */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <button className="gamepad-btn" style={{ width: 80, height: 100, borderRadius: 'var(--radius-xl)', background: 'var(--color-primary)', color: 'var(--color-primary-fg)', border: 'none', flexDirection: 'column', fontSize: '1.2rem' }} onPointerDown={() => handlePointerDown('forward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
-                  ▲<small style={{ fontSize: '0.6rem', marginTop: 4 }}>GAS</small>
+                <button className="gamepad-btn" style={{ width: 80, height: 100, borderRadius: 'var(--radius-xl)', background: 'var(--color-primary)', color: 'var(--color-primary-fg)', border: 'none', flexDirection: 'column', gap: 4 }} onPointerDown={() => handlePointerDown('forward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+                  <ChevronUp size={28} strokeWidth={3} />
+                  <span style={{ fontSize: '0.6rem', fontWeight: 800 }}>GAS</span>
                 </button>
-                <button className="gamepad-btn" style={{ width: 80, height: 64, borderRadius: 'var(--radius-xl)', background: 'var(--color-danger)', color: 'white', border: 'none', fontSize: '1.2rem' }} onPointerDown={() => handlePointerDown('backward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>▼</button>
+                <button className="gamepad-btn" style={{ width: 80, height: 60, borderRadius: 'var(--radius-xl)', background: 'var(--color-danger)', color: 'white', border: 'none' }} onPointerDown={() => handlePointerDown('backward')} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+                  <ChevronDown size={28} strokeWidth={3} />
+                </button>
               </div>
             </div>
           )}

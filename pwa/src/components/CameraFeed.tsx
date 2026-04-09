@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
+import { 
+  CameraOff, 
+  RotateCw, 
+  Maximize2, 
+  Smartphone, 
+  XCircle, 
+  Save, 
+  AlertCircle,
+  RefreshCcw,
+  Monitor
+} from 'lucide-react'
 
 interface Props {
   streamUrl?: string
@@ -119,13 +130,15 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
               </span>
             </div>
             {imgError && (
-              <div className="camera-offline" style={{ position: 'absolute', inset: 0, zIndex: 10, flexDirection: 'column', textAlign: 'center', padding: '20px' }}>
-                <span style={{ fontSize: '2rem', marginBottom: '10px' }}>🚫</span>
+              <div className="camera-offline" style={{ position: 'absolute', inset: 0, zIndex: 10, flexDirection: 'column', textAlign: 'center', padding: '20px', background: 'rgba(0,0,0,0.85)' }}>
+                <AlertCircle size={40} color="var(--color-danger)" style={{ marginBottom: '12px' }} />
                 <span style={{ fontWeight: 600 }}>Không thể nạp thiết bị Camera này!</span>
                 <span style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '8px' }}>
                   Nếu bạn cấu hình <b>iVCam / DroidCam</b>, vui lòng đảm bảo phần mềm chủ đang chạy trên máy tính và điện thoại đã bật App phát kết nối.
                 </span>
-                <button className="btn btn-ghost" style={{ marginTop: '12px' }} onClick={() => { setImgError(false); updateDeviceList(); }}>🔄 Thử lại / Refresh</button>
+                <button className="btn btn-ghost" style={{ marginTop: '12px', gap: 8 }} onClick={() => { setImgError(false); updateDeviceList(); }}>
+                  <RefreshCcw size={14} /> Thử lại / Refresh
+                </button>
               </div>
             )}
           </>
@@ -144,12 +157,12 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
           </>
         ) : (
           <div className="camera-offline">
-            <span style={{ fontSize: '3rem' }}>📷</span>
+            <CameraOff size={48} strokeWidth={1.5} style={{ marginBottom: 12, opacity: 0.4 }} />
             <span>{imgError ? 'Không thể kết nối stream ESP32' : 'Chưa có URL stream'}</span>
             {imgError && url && (
-              <button className="btn btn-ghost" style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+              <button className="btn btn-ghost" style={{ fontSize: '0.8rem', padding: '6px 12px', marginTop: 12, gap: 6 }}
                 onClick={() => setImgError(false)}>
-                Thử lại
+                <RefreshCcw size={12} /> Thử lại
               </button>
             )}
           </div>
@@ -160,7 +173,7 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
         <div className="glass-card panel" style={{ padding: '8px', marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <select 
             className="input" 
-            style={{ flex: 1, minWidth: '150px', padding: '6px', fontSize: '0.9rem' }}
+            style={{ flex: 1, minWidth: '150px', fontSize: '0.9rem' }}
             value={selectedDeviceId}
             onChange={(e) => setSelectedDeviceId(e.target.value)}
           >
@@ -174,18 +187,18 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
             <button 
               className={`btn ${isMirrored ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => setIsMirrored(!isMirrored)}
-              style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              style={{ padding: '6px 14px', fontSize: '0.85rem', gap: 8 }}
               title="Lật ngang khung hình"
             >
-              🔄 Lật / Gương
+              <RotateCw size={14} /> Lật / Gương
             </button>
             <button 
               className={`btn ${isContain ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => setIsContain(!isContain)}
-              style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              style={{ padding: '6px 14px', fontSize: '0.85rem', gap: 8 }}
               title="Cân bằng tỷ lệ Full/Fit tránh viền đen"
             >
-              📐 Mở Rộng
+              <Maximize2 size={14} /> Mở Rộng
             </button>
           </div>
         </div>
@@ -207,10 +220,14 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
             className={`btn ${useLocalCam ? 'btn-danger' : 'btn-ghost'}`}
             onClick={() => setUseLocalCam(!useLocalCam)}
             title="Dùng Camera của điện thoại/laptop này làm camera ảo để test"
-            style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}
+            style={{ padding: '8px 14px', whiteSpace: 'nowrap', gap: 8 }}
             type="button"
           >
-            {useLocalCam ? '❌ Tắt Test Cam' : '📱 Mở Trình Test Cam'}
+            {useLocalCam ? (
+              <><XCircle size={16} /> Tắt Test Cam</>
+            ) : (
+              <><Smartphone size={16} /> Mở Trình Test Cam</>
+            )}
           </button>
           
           <button
@@ -218,9 +235,9 @@ export default function CameraFeed({ streamUrl: initialUrl }: Props) {
             className="btn btn-primary"
             onClick={saveUrl}
             disabled={saving || useLocalCam}
-            style={{ padding: '8px 16px', whiteSpace: 'nowrap' }}
+            style={{ padding: '8px 16px', whiteSpace: 'nowrap', gap: 8 }}
           >
-            {saving ? '...' : '💾 Lưu'}
+            {saving ? '...' : <><Save size={16} /> Lưu</>}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { Navigate } from 'react-router-dom'
+import { LogIn, Key, User, ShieldAlert } from 'lucide-react'
 
 export default function Login() {
   const { session, signIn } = useAuthStore()
@@ -51,10 +52,16 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} style={{ marginTop: '2.5rem' }}>
-          {error && <div className="error-message">⚠️ {error}</div>}
+          {error && (
+            <div className="error-message" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ShieldAlert size={18} /> {error}
+            </div>
+          )}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email" style={{ color: 'var(--color-fg)', fontWeight: 700 }}>Tài khoản</label>
+            <label className="form-label" htmlFor="email" style={{ color: 'var(--color-fg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <User size={14} /> Tài khoản
+            </label>
             <input
               id="email"
               type="text"
@@ -68,7 +75,9 @@ export default function Login() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password" style={{ color: 'var(--color-fg)', fontWeight: 700 }}>Mật khẩu</label>
+            <label className="form-label" htmlFor="password" style={{ color: 'var(--color-fg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Key size={14} /> Mật khẩu
+            </label>
             <input
               id="password"
               type="password"
@@ -90,7 +99,11 @@ export default function Login() {
           >
             {loading ? (
               <><span className="loader-ring" style={{ width: 16, height: 16, borderWidth: 2 }} /> Đang xử lý...</>
-            ) : '🔑 Đăng nhập'}
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <LogIn size={20} /> Đăng nhập
+              </span>
+            )}
           </button>
         </form>
 
