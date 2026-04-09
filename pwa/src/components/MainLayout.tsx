@@ -118,10 +118,10 @@ export default function MainLayout() {
         <Outlet context={{ showNotif } satisfies OutletContextType} />
       </main>
 
-      {/* Bottom Navigation — Split Pill Design */}
+      {/* Bottom Navigation — Notched Pill */}
       <nav className="bottom-nav">
-        {/* Left pill */}
-        <div className="nav-pill">
+        <div className="bottom-nav-bar">
+          {/* Left group */}
           <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Bot className="nav-icon-svg" />
             <span className="nav-label">Robot</span>
@@ -130,24 +130,24 @@ export default function MainLayout() {
             <Gamepad2 className="nav-icon-svg" />
             <span className="nav-label">Lái xe</span>
           </NavLink>
-        </div>
 
-        {/* Center FAB */}
-        <button
-          className="nav-fab"
-          onClick={async () => {
-            if (!profile) return
-            const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
-            if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
-            else showNotif('Lỗi khi gửi lệnh!', 'danger')
-          }}
-          title="Bắt đầu làm việc"
-        >
-          <Play size={26} fill="#fff" stroke="#fff" />
-        </button>
+          {/* Center gap — FAB floats above this */}
+          <div className="nav-fab-gap">
+            <button
+              className="nav-fab"
+              onClick={async () => {
+                if (!profile) return
+                const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
+                if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
+                else showNotif('Lỗi khi gửi lệnh!', 'danger')
+              }}
+              title="Bắt đầu làm việc"
+            >
+              <Play size={26} fill="#fff" stroke="#fff" />
+            </button>
+          </div>
 
-        {/* Right pill */}
-        <div className="nav-pill">
+          {/* Right group */}
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <MapIcon className="nav-icon-svg" />
             <span className="nav-label">Bản đồ</span>
@@ -158,7 +158,6 @@ export default function MainLayout() {
           </NavLink>
         </div>
       </nav>
-
     </div>
   )
 }
