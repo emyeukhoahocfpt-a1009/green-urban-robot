@@ -329,60 +329,93 @@ input[type="datetime-local"].input {
   .hide-mobile { display: none !important; }
 }
 
-/* BOTTOM NAV — Notched Pill */
+/* BOTTOM NAV — Concave Notch Pills */
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 100;
   display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
-  align-items: flex-end;
-  padding: 0 clamp(12px, 4vw, 32px);
-  padding-bottom: max(14px, var(--safe-bottom));
+  gap: 10px;
+  padding: 0 clamp(10px, 3vw, 24px);
+  padding-bottom: max(16px, var(--safe-bottom));
   pointer-events: none;
 }
 
-/* Single pill bar with a center gap for the FAB */
-.bottom-nav-bar {
+/* Shared pill style */
+.nav-pill {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
-  max-width: 540px;
-  padding: 8px clamp(8px, 2vw, 14px);
+  gap: 2px;
+  padding: 8px 10px;
   border-radius: 999px;
   background: var(--surface-glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.07);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
   pointer-events: auto;
-  gap: 0;
+  position: relative;
+  overflow: visible;
 }
 
-/* Nav items fill equally */
+/*
+  Concave inner arc on the edge facing the FAB.
+  We use a radial-gradient mask that cuts a circular arc
+  at the inner corner of each pill — radius ~36px matches FAB + gap.
+*/
+.nav-pill-left {
+  /* Cut arc at the RIGHT side (facing FAB) */
+  -webkit-mask-image: radial-gradient(
+    circle 36px at calc(100% + 4px) 50%,
+    transparent 100%,
+    black 0
+  );
+  mask-image: radial-gradient(
+    circle 36px at calc(100% + 4px) 50%,
+    transparent 100%,
+    black 0
+  );
+}
+
+.nav-pill-right {
+  /* Cut arc at the LEFT side (facing FAB) */
+  -webkit-mask-image: radial-gradient(
+    circle 36px at calc(0% - 4px) 50%,
+    transparent 100%,
+    black 0
+  );
+  mask-image: radial-gradient(
+    circle 36px at calc(0% - 4px) 50%,
+    transparent 100%,
+    black 0
+  );
+}
+
+/* Nav items */
 .nav-item {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  padding: clamp(6px, 1.2vw, 10px) clamp(4px, 1.5vw, 10px);
+  padding: clamp(7px, 1.5vw, 10px) clamp(10px, 2.5vw, 18px);
   border-radius: 999px;
   color: var(--color-muted-fg);
   text-decoration: none;
-  font-size: clamp(0.55rem, 1.5vw, 0.65rem);
+  font-size: clamp(0.55rem, 1.4vw, 0.65rem);
   font-weight: 500;
   letter-spacing: 0.02em;
-  transition: color 0.2s ease, background 0.2s ease;
-  position: relative;
+  transition: color 0.18s ease, background 0.18s ease;
   white-space: nowrap;
 }
 
 .nav-icon-svg {
-  width: clamp(18px, 4vw, 22px);
-  height: clamp(18px, 4vw, 22px);
+  width: clamp(19px, 4vw, 22px);
+  height: clamp(19px, 4vw, 22px);
   stroke-width: 1.8px;
   transition: transform 0.2s ease;
 }
@@ -398,27 +431,14 @@ input[type="datetime-local"].input {
 
 .nav-label { display: block; line-height: 1; }
 
-/* Center gap — holds the FAB, with breathing room */
-.nav-fab-gap {
-  flex-shrink: 0;
-  width: clamp(60px, 14vw, 80px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-/* FAB rises above the pill bar */
+/* Center FAB — floats between the two pills */
 .nav-fab {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) translateY(clamp(-18px, -4vw, -22px));
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(52px, 12vw, 64px);
-  height: clamp(52px, 12vw, 64px);
+  width: clamp(54px, 12vw, 64px);
+  height: clamp(54px, 12vw, 64px);
   border-radius: 50%;
   background: var(--color-primary);
   border: 4px solid var(--color-bg);
@@ -428,24 +448,28 @@ input[type="datetime-local"].input {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   pointer-events: auto;
+  /* Slightly lift above the pill height */
+  margin-bottom: 6px;
 }
 .nav-fab:hover {
-  transform: translate(-50%, -50%) translateY(clamp(-22px, -5vw, -26px)) scale(1.08);
+  transform: translateY(-4px) scale(1.08);
   box-shadow:
-    0 10px 30px rgba(74, 124, 89, 0.56),
+    0 12px 32px rgba(74, 124, 89, 0.55),
     0 0 0 1px rgba(74, 124, 89, 0.28);
 }
 .nav-fab:active {
-  transform: translate(-50%, -50%) translateY(clamp(-14px, -3vw, -18px)) scale(0.94);
+  transform: scale(0.93);
+  box-shadow: 0 3px 12px rgba(74, 124, 89, 0.4);
 }
 
 @media (max-width: 480px) {
-  .bottom-nav { padding: 0 8px; padding-bottom: max(10px, var(--safe-bottom)); }
-  .bottom-nav-bar { max-width: 100%; padding: 6px 8px; }
-  .nav-item { font-size: 0.55rem; }
-  .nav-fab-gap { width: 64px; }
+  .bottom-nav { gap: 6px; padding: 0 8px; padding-bottom: max(12px, var(--safe-bottom)); }
+  .nav-pill { padding: 6px 8px; }
+  .nav-item { padding: 7px 10px; font-size: 0.55rem; }
+  .nav-fab { margin-bottom: 4px; }
   .app-main { padding-bottom: 88px !important; }
 }
+
 
 
 /* Page fade animation */
