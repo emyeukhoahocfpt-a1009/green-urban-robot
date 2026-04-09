@@ -362,14 +362,14 @@ input[type="datetime-local"].input {
   max-width: 220px;
 }
 
-/* Left pill: fully rounded on left, convex outward on right (toward FAB) */
+/* Left pill ( : small rounding on outer-left, big semicircle on inner-right facing FAB */
 .nav-pill-left {
-  border-radius: 999px 22px 22px 999px;
+  border-radius: 14px 999px 999px 14px;
 }
 
-/* Right pill: convex outward on left (toward FAB), fully rounded on right */
+/* Right pill ) : big semicircle on inner-left facing FAB, small rounding on outer-right */
 .nav-pill-right {
-  border-radius: 22px 999px 999px 22px;
+  border-radius: 999px 14px 14px 999px;
 }
 
 /* Nav items fill the pill equally */
