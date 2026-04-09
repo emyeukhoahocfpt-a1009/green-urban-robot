@@ -353,7 +353,6 @@ input[type="datetime-local"].input {
   justify-content: space-around;
   gap: 2px;
   padding: 8px 6px;
-  border-radius: 999px;
   background: var(--surface-glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -361,6 +360,16 @@ input[type="datetime-local"].input {
   box-shadow: 0 6px 20px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
   pointer-events: auto;
   max-width: 220px;
+}
+
+/* Left pill: fully rounded on left, convex outward on right (toward FAB) */
+.nav-pill-left {
+  border-radius: 999px 22px 22px 999px;
+}
+
+/* Right pill: convex outward on left (toward FAB), fully rounded on right */
+.nav-pill-right {
+  border-radius: 22px 999px 999px 22px;
 }
 
 /* Nav items fill the pill equally */
