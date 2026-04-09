@@ -76,7 +76,7 @@ export default function SchedulePanel({ onNotif }: Props) {
         onNotif('Đã thêm lịch thành công!', 'success')
       } else {
         console.error('Lỗi thêm lịch:', error)
-        onNotif('Không thể thêm lịch', 'danger')
+        onNotif(`Lỗi: ${error?.message || 'Unknown'} (${error?.code || '?'})`, 'danger')
       }
     } catch (err) {
       console.error('Try/catch lỗi:', err)
