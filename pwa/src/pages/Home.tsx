@@ -10,8 +10,7 @@ import {
   Home as HomeIcon, 
   Video, 
   Gamepad2, 
-  BarChart3,
-  AlertTriangle 
+  BarChart3
 } from 'lucide-react'
 
 export default function Home() {

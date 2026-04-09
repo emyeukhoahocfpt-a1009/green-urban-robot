@@ -9,8 +9,7 @@ import {
   XCircle, 
   Save, 
   AlertCircle,
-  RefreshCcw,
-  Monitor
+  RefreshCcw
 } from 'lucide-react'
 
 interface Props {

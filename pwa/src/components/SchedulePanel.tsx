@@ -3,14 +3,11 @@ import { supabase, type Schedule } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 
 import { 
-  Calendar, 
   Plus, 
   Trash2, 
   Play, 
   Pause, 
   Home as HomeIcon,
-  CheckCircle,
-  XCircle,
   Clock
 } from 'lucide-react'
 
@@ -19,7 +16,7 @@ interface Props {
 }
 
 export default function SchedulePanel({ onNotif }: Props) {
-  const { profile } = useAuthStore()
+  const { session } = useAuthStore()
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [label, setLabel] = useState('Lịch cắt cỏ')
   const [startTime, setStartTime] = useState('')
@@ -35,43 +32,54 @@ export default function SchedulePanel({ onNotif }: Props) {
     new Date(iso).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
 
   useEffect(() => {
-    if (!profile) return
+    if (!session?.user?.id) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
     supabase
       .from('robot_schedules')
       .select('*')
-      .eq('user_id', profile.id)
+      .eq('user_id', session.user.id)
       .order('start_time', { ascending: true })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (data) setSchedules(data as Schedule[])
+        else if (error) console.error('Lỗi tải lịch:', error)
         setLoading(false)
       })
-  }, [profile])
+  }, [session?.user?.id])
 
   const addSchedule = async () => {
-    if (!profile || !startTime) return
+    if (!session?.user?.id || !startTime) return
     setSaving(true)
-    const { data, error } = await supabase
-      .from('robot_schedules')
-      .insert({
-        user_id: profile.id,
-        label,
-        start_time: new Date(startTime).toISOString(),
-        run_duration_hours: duration,
-        return_home_time: returnHomeTime!,
-        active: true
-      })
-      .select()
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('robot_schedules')
+        .insert({
+          user_id: session.user.id,
+          label,
+          start_time: new Date(startTime).toISOString(),
+          run_duration_hours: duration,
+          return_home_time: returnHomeTime!,
+          active: true
+        })
+        .select()
+        .single()
 
-    if (!error && data) {
-      setSchedules(prev => [...prev, data as Schedule].sort(
-        (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-      ))
-      setStartTime('')
-      setDuration(1)
-      onNotif('Đã thêm lịch thành công!', 'success')
-    } else {
-      onNotif('Không thể thêm lịch', 'danger')
+      if (!error && data) {
+        setSchedules(prev => [...prev, data as Schedule].sort(
+          (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+        ))
+        setStartTime('')
+        setDuration(1)
+        onNotif('Đã thêm lịch thành công!', 'success')
+      } else {
+        console.error('Lỗi thêm lịch:', error)
+        onNotif('Không thể thêm lịch', 'danger')
+      }
+    } catch (err) {
+      console.error('Try/catch lỗi:', err)
+      onNotif('Dữ liệu không hợp lệ', 'danger')
     }
     setSaving(false)
   }

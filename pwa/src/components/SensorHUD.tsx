@@ -4,7 +4,6 @@ import { useAuthStore } from '../stores/authStore'
 import { 
   Battery, 
   BatteryLow, 
-  BatteryWarning, 
   BatteryFull, 
   Droplets, 
   Thermometer 
