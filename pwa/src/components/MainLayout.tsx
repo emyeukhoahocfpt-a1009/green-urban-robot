@@ -118,44 +118,47 @@ export default function MainLayout() {
         <Outlet context={{ showNotif } satisfies OutletContextType} />
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation — Split Pill Design */}
       <nav className="bottom-nav">
-        <div className="bottom-nav-container">
+        {/* Left pill */}
+        <div className="nav-pill">
           <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Bot className="nav-icon-svg" />
             <span className="nav-label">Robot</span>
           </NavLink>
-
           <NavLink to="/drive" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Gamepad2 className="nav-icon-svg" />
             <span className="nav-label">Lái xe</span>
           </NavLink>
+        </div>
 
-          {/* Center FAB - Start Button */}
-          <button
-            className="nav-fab"
-            onClick={async () => {
-              if (!profile) return
-              const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
-              if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
-              else showNotif('Lỗi khi gửi lệnh!', 'danger')
-            }}
-            title="Bắt đầu làm việc"
-          >
-            <Play size={24} fill="#fff" stroke="#fff" />
-          </button>
+        {/* Center FAB */}
+        <button
+          className="nav-fab"
+          onClick={async () => {
+            if (!profile) return
+            const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
+            if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
+            else showNotif('Lỗi khi gửi lệnh!', 'danger')
+          }}
+          title="Bắt đầu làm việc"
+        >
+          <Play size={26} fill="#fff" stroke="#fff" />
+        </button>
 
+        {/* Right pill */}
+        <div className="nav-pill">
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <MapIcon className="nav-icon-svg" />
             <span className="nav-label">Bản đồ</span>
           </NavLink>
-
           <NavLink to="/schedule" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Calendar className="nav-icon-svg" />
             <span className="nav-label">Lịch trình</span>
           </NavLink>
         </div>
       </nav>
+
     </div>
   )
 }
