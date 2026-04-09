@@ -10,7 +10,8 @@ import {
   Calendar, 
   LogOut, 
   Sun, 
-  Moon 
+  Moon,
+  Play
 } from 'lucide-react'
 
 export type OutletContextType = {
@@ -129,6 +130,20 @@ export default function MainLayout() {
             <Gamepad2 className="nav-icon-svg" />
             <span className="nav-label">Lái xe</span>
           </NavLink>
+
+          {/* Center FAB - Start Button */}
+          <button
+            className="nav-fab"
+            onClick={async () => {
+              if (!profile) return
+              const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
+              if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
+              else showNotif('Lỗi khi gửi lệnh!', 'danger')
+            }}
+            title="Bắt đầu làm việc"
+          >
+            <Play size={24} fill="#fff" stroke="#fff" />
+          </button>
 
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <MapIcon className="nav-icon-svg" />

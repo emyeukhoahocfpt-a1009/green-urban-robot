@@ -61,7 +61,8 @@ export default function SchedulePanel({ onNotif }: Props) {
           start_time: new Date(startTime).toISOString(),
           run_duration_hours: duration,
           return_home_time: returnHomeTime!,
-          active: true
+          active: true,
+          notified: false
         })
         .select()
         .single()
