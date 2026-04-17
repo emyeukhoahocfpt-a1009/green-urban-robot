@@ -2,12 +2,21 @@ import { useState, useEffect } from 'react'
 import { supabase, type Schedule } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 
+import {
+  Plus,
+  Trash2,
+  Play,
+  Pause,
+  Home as HomeIcon,
+  Clock
+} from 'lucide-react'
+
 interface Props {
   onNotif: (msg: string, type: 'success' | 'danger' | 'warning') => void
 }
 
 export default function SchedulePanel({ onNotif }: Props) {
-  const { profile } = useAuthStore()
+  const { session } = useAuthStore()
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [label, setLabel] = useState('Lịch cắt cỏ')
   const [startTime, setStartTime] = useState('')
@@ -23,43 +32,55 @@ export default function SchedulePanel({ onNotif }: Props) {
     new Date(iso).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
 
   useEffect(() => {
-    if (!profile) return
+    if (!session?.user?.id) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
     supabase
       .from('robot_schedules')
       .select('*')
-      .eq('user_id', profile.id)
+      .eq('user_id', session.user.id)
       .order('start_time', { ascending: true })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (data) setSchedules(data as Schedule[])
+        else if (error) console.error('Lỗi tải lịch:', error)
         setLoading(false)
       })
-  }, [profile])
+  }, [session?.user?.id])
 
   const addSchedule = async () => {
-    if (!profile || !startTime) return
+    if (!session?.user?.id || !startTime) return
     setSaving(true)
-    const { data, error } = await supabase
-      .from('robot_schedules')
-      .insert({
-        user_id: profile.id,
-        label,
-        start_time: new Date(startTime).toISOString(),
-        run_duration_hours: duration,
-        return_home_time: returnHomeTime!,
-        active: true
-      })
-      .select()
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('robot_schedules')
+        .insert({
+          user_id: session.user.id,
+          label,
+          start_time: new Date(startTime).toISOString(),
+          run_duration_hours: duration,
+          return_home_time: returnHomeTime!,
+          active: true,
+          notified: false
+        })
+        .select()
+        .single()
 
-    if (!error && data) {
-      setSchedules(prev => [...prev, data as Schedule].sort(
-        (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-      ))
-      setStartTime('')
-      setDuration(1)
-      onNotif('✅ Đã thêm lịch thành công!', 'success')
-    } else {
-      onNotif('❌ Không thể thêm lịch', 'danger')
+      if (!error && data) {
+        setSchedules(prev => [...prev, data as Schedule].sort(
+          (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+        ))
+        setStartTime('')
+        setDuration(1)
+        onNotif('Đã thêm lịch thành công!', 'success')
+      } else {
+        console.error('Lỗi thêm lịch:', error)
+        onNotif(`Lỗi: ${error?.message || 'Unknown'} (${error?.code || '?'})`, 'danger')
+      }
+    } catch (err) {
+      console.error('Try/catch lỗi:', err)
+      onNotif('Dữ liệu không hợp lệ', 'danger')
     }
     setSaving(false)
   }
@@ -72,7 +93,7 @@ export default function SchedulePanel({ onNotif }: Props) {
   const deleteSchedule = async (id: number) => {
     await supabase.from('robot_schedules').delete().eq('id', id)
     setSchedules(prev => prev.filter(s => s.id !== id))
-    onNotif('🗑️ Đã xoá lịch', 'warning')
+    onNotif('Đã xoá lịch', 'warning')
   }
 
   return (
@@ -121,9 +142,9 @@ export default function SchedulePanel({ onNotif }: Props) {
         className="btn btn-primary"
         onClick={addSchedule}
         disabled={saving || !startTime}
-        style={{ marginBottom: '20px' }}
+        style={{ marginBottom: '20px', gap: 8 }}
       >
-        {saving ? '...' : '➕ Thêm lịch'}
+        {saving ? '...' : <><Plus size={16} /> Thêm lịch</>}
       </button>
 
       {/* Schedule List */}
@@ -136,25 +157,31 @@ export default function SchedulePanel({ onNotif }: Props) {
           <div key={s.id} className={`schedule-item ${!s.active ? 'inactive' : ''}`}>
             <div className="schedule-info">
               <div className="schedule-label">{s.label}</div>
-              <div className="schedule-times">
-                ▶ {formatLocal(s.start_time)} → 🏠 {formatLocal(s.return_home_time)}
-                &nbsp;·&nbsp;{s.run_duration_hours}h
+              <div className="schedule-times" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <Play size={10} fill="currentColor" /> {formatLocal(s.start_time)}
+                <span style={{ opacity: 0.5 }}>→</span>
+                <HomeIcon size={10} /> {formatLocal(s.return_home_time)}
+                <span style={{ opacity: 0.5 }}>·</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={10} /> {s.run_duration_hours}h
+                </div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
               <button
                 className={`btn ${s.active ? 'btn-ghost' : 'btn-primary'}`}
-                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6 }}
                 onClick={() => toggleActive(s.id, s.active)}
               >
-                {s.active ? '⏸ Tắt' : '▶ Bật'}
+                {s.active ? <><Pause size={12} fill="currentColor" /> Tắt</> : <><Play size={12} fill="currentColor" /> Bật</>}
               </button>
               <button
                 className="btn btn-danger"
-                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                style={{ padding: '6px', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 onClick={() => deleteSchedule(s.id)}
+                title="Xoá lịch"
               >
-                🗑
+                <Trash2 size={14} />
               </button>
             </div>
           </div>

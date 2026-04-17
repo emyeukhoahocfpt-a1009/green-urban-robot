@@ -10,21 +10,22 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <TinyGPSPlus.h>
+#include <WiFiManager.h>
+#include <ESPmDNS.h>
 #include "esp_camera.h"
 
 // ============================================================
 // CONFIGURATION — Sửa các giá trị này
 // ============================================================
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD  = "YOUR_WIFI_PASSWORD";
+// WiFiManager sẽ tự động quản lý WiFi, không cần khai báo SSID/Pass ở đây nữa
 
 // Supabase Edge Function URLs
 const char* TELEMETRY_URL  = "https://glbmjvnhdulpqiavmdai.supabase.co/functions/v1/telemetry";
 const char* COMMANDS_URL   = "https://glbmjvnhdulpqiavmdai.supabase.co/functions/v1/commands";
 const char* SUPABASE_KEY   = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsYm1qdm5oZHVscHFpYXZtZGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzM5MTYsImV4cCI6MjA5MTE0OTkxNn0.CIL6J1cj2NXPY6oqJKv63Un6MTw9h2hakUq7KW5OTOE";
 
-// User ID từ Supabase Auth (lấy từ dashboard sau khi tạo tài khoản)
-const char* USER_ID = "cac8dc2b-5953-4c4c-a8f3-8c68ffe40f33";
+// User ID và Device ID sẽ được xử lý tự động
+String deviceID = ""; 
 
 // GPS UART pins (dùng Serial2)
 #define GPS_RX_PIN 16
@@ -120,6 +121,21 @@ void motorStop() {
   digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, LOW);
 }
 
+void motorBackward() {
+  digitalWrite(MOTOR_A1, LOW); digitalWrite(MOTOR_A2, HIGH);
+  digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, HIGH);
+}
+
+void motorLeft() {
+  digitalWrite(MOTOR_A1, LOW); digitalWrite(MOTOR_A2, HIGH);
+  digitalWrite(MOTOR_B1, HIGH); digitalWrite(MOTOR_B2, LOW);
+}
+
+void motorRight() {
+  digitalWrite(MOTOR_A1, HIGH); digitalWrite(MOTOR_A2, LOW);
+  digitalWrite(MOTOR_B1, LOW); digitalWrite(MOTOR_B2, HIGH);
+}
+
 // Simplified "go home" — quay 180° rồi chạy thẳng 5s
 void motorGoHome() {
   // Quay phải 2s
@@ -157,24 +173,22 @@ void sendTelemetry() {
   float lat = gps.location.isValid() ? gps.location.lat() : 0.0f;
   float lng = gps.location.isValid() ? gps.location.lng() : 0.0f;
 
-  // Simulated humidity & temperature (thay bằng DHT22 nếu có)
   float humidity    = 65.0f + random(-5, 5);
   float temperature = 28.0f + random(-2, 2);
 
   StaticJsonDocument<256> doc;
-  doc["user_id"]     = USER_ID;
+  doc["device_id"]   = deviceID; // Dùng Device ID thay vì User ID
   doc["battery_pct"] = battery;
   doc["humidity"]    = humidity;
   doc["temperature"] = temperature;
   doc["gps_lat"]     = lat;
   doc["gps_lng"]     = lng;
-  doc["timestamp"]   = ""; // Edge Function sẽ tự set
 
   String body;
   serializeJson(doc, body);
 
   int code = http.POST(body);
-  Serial.printf("Telemetry → %d | bat=%.0f%% lat=%.6f lng=%.6f\n", code, battery, lat, lng);
+  Serial.printf("Telemetry [%s] → %d\n", deviceID.c_str(), code);
   http.end();
 }
 
@@ -185,7 +199,7 @@ void pollCommands() {
   if (WiFi.status() != WL_CONNECTED) return;
 
   HTTPClient http;
-  String url = String(COMMANDS_URL) + "?user_id=" + USER_ID;
+  String url = String(COMMANDS_URL) + "?device_id=" + deviceID;
   http.begin(url);
   http.addHeader("Authorization", String("Bearer ") + SUPABASE_KEY);
 
@@ -195,6 +209,7 @@ void pollCommands() {
     StaticJsonDocument<128> doc;
     deserializeJson(doc, resp);
     const char* cmd = doc["command"] | "";
+// ...
 
     if (strcmp(cmd, "go_home") == 0) {
       Serial.println("CMD: go_home");
@@ -203,10 +218,22 @@ void pollCommands() {
       Serial.println("CMD: stop");
       running = false;
       motorStop();
-    } else if (strcmp(cmd, "start") == 0) {
-      Serial.println("CMD: start");
+    } else if (strcmp(cmd, "start") == 0 || strcmp(cmd, "forward") == 0) {
+      Serial.println("CMD: forward");
       running = true;
       motorForward();
+    } else if (strcmp(cmd, "backward") == 0) {
+      Serial.println("CMD: backward");
+      running = true;
+      motorBackward();
+    } else if (strcmp(cmd, "left") == 0) {
+      Serial.println("CMD: left");
+      running = true;
+      motorLeft();
+    } else if (strcmp(cmd, "right") == 0) {
+      Serial.println("CMD: right");
+      running = true;
+      motorRight();
     }
   }
   http.end();
@@ -244,16 +271,33 @@ void setup() {
   motorInit();
   initCamera();
 
-  // Connect WiFi
-  Serial.printf("Kết nối WiFi: %s\n", WIFI_SSID);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  // WiFi connection via WiFiManager
+  WiFiManager wm;
+  Serial.println("Đang kiểm tra WiFi đã lưu...");
+  
+  // wm.resetSettings(); // Mở comment dòng này nếu bạn muốn xóa sạch WiFi cũ để cài lại từ đầu
+  
+  // Tự động kết nối hoặc phát AP 'Green_Urban_Robot_Setup' nếu không thấy WiFi cũ
+  if(!wm.autoConnect("Green_Urban_Robot_Setup")) {
+    Serial.println("Không kết nối được WiFi và đã hết thời gian chờ!");
+    delay(3000);
+    ESP.restart();
   }
-  Serial.printf("\nWiFi OK! IP: %s\n", WiFi.localIP().toString().c_str());
-  Serial.printf("Camera stream: http://%s/stream\n", WiFi.localIP().toString().c_str());
 
+  Serial.printf("\nWiFi OK! IP: %s\n", WiFi.localIP().toString().c_str());
+
+  // Lấy mã định danh phần cứng (MAC Address)
+  deviceID = WiFi.macAddress();
+  deviceID.replace(":", ""); // VD: 240AC4010203
+  
+  // Khởi tạo mDNS để Web App dễ tìm thấy (truy cập qua robot-XXXX.local)
+  String hostName = "robot-" + deviceID.substring(deviceID.length() - 4);
+  if (MDNS.begin(hostName.c_str())) {
+    Serial.printf("mDNS đã bật: http://%s.local\n", hostName.c_str());
+  }
+
+  Serial.printf("Camera stream: http://%s/stream\n", WiFi.localIP().toString().c_str());
+  
   streamServer.begin();
   randomSeed(analogRead(0));
 }

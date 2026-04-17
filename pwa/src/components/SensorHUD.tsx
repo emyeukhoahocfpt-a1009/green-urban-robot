@@ -1,6 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase, type Telemetry } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
+import { 
+  Battery, 
+  BatteryLow, 
+  BatteryFull, 
+  Droplets, 
+  Thermometer 
+} from 'lucide-react'
 
 interface Props {
   onLowBattery: () => void
@@ -55,7 +62,13 @@ export default function SensorHUD({ onLowBattery }: Props) {
   const sensors = [
     {
       id: 'sensor-battery',
-      icon: data.battery_pct! > 20 ? '🔋' : '🪫',
+      icon: (
+        <span style={{ color: batteryColor(data.battery_pct ?? 0) }}>
+          {data.battery_pct! > 50 ? <BatteryFull size={24} /> : 
+           data.battery_pct! > 20 ? <Battery size={24} /> : 
+           <BatteryLow size={24} />}
+        </span>
+      ),
       value: `${(data.battery_pct ?? 0).toFixed(0)}%`,
       label: 'Pin',
       extra: (
@@ -69,13 +82,13 @@ export default function SensorHUD({ onLowBattery }: Props) {
     },
     {
       id: 'sensor-humidity',
-      icon: '💧',
+      icon: <Droplets size={24} style={{ color: '#3498db' }} />,
       value: `${(data.humidity ?? 0).toFixed(1)}%`,
       label: 'Độ ẩm'
     },
     {
       id: 'sensor-temp',
-      icon: '🌡️',
+      icon: <Thermometer size={24} style={{ color: '#e67e22' }} />,
       value: `${(data.temperature ?? 0).toFixed(1)}°C`,
       label: 'Nhiệt độ'
     }

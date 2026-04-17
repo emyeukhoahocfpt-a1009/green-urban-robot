@@ -1,8 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import ConnectionBadge from './ConnectionBadge'
+import { 
+  Bot, 
+  Gamepad2, 
+  Map as MapIcon, 
+  Calendar, 
+  LogOut, 
+  Sun, 
+  Moon,
+  Play,
+  Settings
+} from 'lucide-react'
+import RobotSettings from './RobotSettings'
 
 export type OutletContextType = {
   showNotif: (msg: string, type?: 'success' | 'danger' | 'warning') => void
@@ -10,8 +22,12 @@ export type OutletContextType = {
 
 export default function MainLayout() {
   const { profile, signOut } = useAuthStore()
+  const location = useLocation()
+  const isMap = location.pathname === '/map'
+
   const [lastHeartbeat, setLastHeartbeat] = useState<string | null>(null)
   const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'danger' | 'warning' } | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
   const notifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showNotif = (msg: string, type: 'success' | 'danger' | 'warning' = 'success') => {
@@ -21,14 +37,13 @@ export default function MainLayout() {
   }
 
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
-  
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('app-theme') as 'dark' | 'light') || 'dark'
+    return (localStorage.getItem('app-theme') as 'dark' | 'light') || 'light'
   })
 
   useEffect(() => {
@@ -36,11 +51,9 @@ export default function MainLayout() {
     localStorage.setItem('app-theme', theme)
   }, [theme])
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
 
-  // Subscribe to telemetry for heartbeat
+  // Subscribe to telemetry heartbeat
   useEffect(() => {
     const channel = supabase
       .channel('heartbeat_layout')
@@ -52,7 +65,6 @@ export default function MainLayout() {
         setLastHeartbeat((payload.new as { timestamp: string }).timestamp)
       })
       .subscribe()
-
     return () => { supabase.removeChannel(channel) }
   }, [])
 
@@ -61,8 +73,7 @@ export default function MainLayout() {
       {/* Notification */}
       {notification && (
         <div
-          className={`glass-card notification-banner badge-${notification.type === 'success' ? 'online' : notification.type === 'danger' ? 'offline' : 'warning'}`}
-          style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'var(--color-text)' }}
+          className={`notification-banner badge-${notification.type === 'success' ? 'online' : notification.type === 'danger' ? 'offline' : 'warning'}`}
         >
           {notification.msg}
         </div>
@@ -71,62 +82,100 @@ export default function MainLayout() {
       {/* Header */}
       <header className="app-header">
         <div className="header-brand">
-          <img src="/logo.png" alt="Logo" style={{ width: 28, height: 28, borderRadius: '50%' }} />
-          <span>Green Urban Robot</span>
+          <img src="/logo.png" alt="Logo" style={{ width: 28, height: 28, borderRadius: 8 }} />
+          <span style={{ fontSize: '0.95rem' }}>Green Urban Robot</span>
           {profile?.role === 'admin' && (
-            <span className="badge" style={{ background: 'var(--color-accent-dim)', color: 'var(--color-accent)', border: '1px solid rgba(0,229,176,0.3)', marginLeft: 8 }}>
-              ADMIN
-            </span>
+            <span className="badge badge-online" style={{ fontSize: '0.6rem' }}>ADMIN</span>
           )}
         </div>
+
         <div className="header-actions">
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 500, letterSpacing: '0.05em' }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.75rem',
+            color: 'var(--color-muted-fg)',
+            fontWeight: 500
+          }}>
             {currentTime.toLocaleTimeString('vi-VN')}
           </span>
+
           <ConnectionBadge lastHeartbeat={lastHeartbeat} />
-          
-          {/* Theme Toggle Button */}
-          <button 
-            className="btn btn-ghost" 
-            onClick={toggleTheme} 
-            title={theme === 'dark' ? 'Chuyển sang nền sáng' : 'Chuyển sang nền tối'}
-            style={{ padding: '6px', fontSize: '1rem', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+
+          <button
+            className="btn btn-ghost"
+            onClick={() => setShowSettings(true)}
+            style={{ width: 34, height: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--radius-md)' }}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            <Settings size={18} strokeWidth={2} />
           </button>
 
-          <button id="btn-signout" className="btn btn-ghost" onClick={signOut} style={{ padding: '6px 14px', fontSize: '0.8rem' }}>
-            Đăng xuất
+          <button
+            className="btn btn-ghost"
+            onClick={toggleTheme}
+            style={{ width: 34, height: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--radius-md)' }}
+          >
+            {theme === 'dark' ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
+          </button>
+
+          <button id="btn-signout" className="btn btn-ghost btn-sm" onClick={signOut} style={{ gap: 'var(--space-2)' }}>
+            <LogOut size={14} strokeWidth={2.5} />
+            <span className="hide-mobile">Đăng xuất</span>
           </button>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="app-main">
-        <div className="container" style={{ paddingBottom: '80px' }}>
-          <Outlet context={{ showNotif } satisfies OutletContextType} />
-        </div>
+      {/* Main Content */}
+      <main className={`app-main ${isMap ? 'no-padding' : ''}`}>
+        <Outlet context={{ showNotif } satisfies OutletContextType} />
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation — Concave Notch Pill */}
       <nav className="bottom-nav">
-        <div className="bottom-nav-container glass-card">
+        {/* Left pill */}
+        <div className="nav-pill nav-pill-left">
           <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🤖</span>
-            <span className="nav-label">Điều khiển</span>
+            <Bot className="nav-icon-svg" />
+            <span className="nav-label">Robot</span>
           </NavLink>
-          
+          <NavLink to="/drive" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <Gamepad2 className="nav-icon-svg" />
+            <span className="nav-label">Lái xe</span>
+          </NavLink>
+        </div>
+
+        {/* Center FAB */}
+        <button
+          className="nav-fab"
+          onClick={async () => {
+            if (!profile) return
+            const { error } = await supabase.from('robot_commands').insert({ user_id: profile.id, command: 'start' })
+            if (!error) showNotif('Đã gửi lệnh: Bắt đầu', 'success')
+            else showNotif('Lỗi khi gửi lệnh!', 'danger')
+          }}
+          title="Bắt đầu làm việc"
+        >
+          <Play size={26} fill="#fff" stroke="#fff" />
+        </button>
+
+        {/* Right pill */}
+        <div className="nav-pill nav-pill-right">
           <NavLink to="/map" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🗺️</span>
+            <MapIcon className="nav-icon-svg" />
             <span className="nav-label">Bản đồ</span>
           </NavLink>
-          
           <NavLink to="/schedule" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">📅</span>
+            <Calendar className="nav-icon-svg" />
             <span className="nav-label">Lịch trình</span>
           </NavLink>
         </div>
       </nav>
+      {/* Settings Modal */}
+      {showSettings && (
+        <RobotSettings 
+          onClose={() => setShowSettings(false)} 
+          showNotif={showNotif}
+        />
+      )}
     </div>
   )
 }

@@ -19,15 +19,30 @@ Deno.serve(async (req) => {
     )
 
     const url = new URL(req.url)
-    const user_id = url.searchParams.get('user_id')
+    const device_id = url.searchParams.get('device_id')
 
-    if (!user_id) {
-      return new Response(JSON.stringify({ error: 'Missing user_id' }), {
+    if (!device_id) {
+      return new Response(JSON.stringify({ error: 'Missing device_id' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    // Get latest unexecuted command
+    // 1. Tìm chủ sở hữu của robot từ mã MAC (device_id)
+    const { data: robot } = await supabase
+      .from('robots')
+      .select('owner_id')
+      .eq('id', device_id)
+      .single()
+
+    const user_id = robot?.owner_id
+
+    if (!user_id) {
+      return new Response(JSON.stringify({ command: null, message: 'Robot has no owner' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // 2. Lấy lệnh mới nhất của chính chủ nhân đó
     const { data: commands, error } = await supabase
       .from('robot_commands')
       .select('*')

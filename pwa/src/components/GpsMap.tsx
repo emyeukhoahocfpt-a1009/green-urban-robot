@@ -3,13 +3,18 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { supabase, type Telemetry } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
+import { MapPin, Navigation } from 'lucide-react'
+
+import icon from 'leaflet/dist/images/marker-icon.png'
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
+import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
 // Fix Leaflet default marker icon
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconRetinaUrl: iconRetina,
+  iconUrl: icon,
+  shadowUrl: iconShadow,
 })
 
 const TRAIL_LIMIT = 50
@@ -26,7 +31,6 @@ export default function GpsMap() {
   useEffect(() => {
     if (!mapRef.current || leafletMap.current) return
 
-    // Init map
     const map = L.map(mapRef.current, {
       center: [10.7769, 106.7009], // HCM City default
       zoom: 15,
@@ -35,17 +39,26 @@ export default function GpsMap() {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      className: 'map-tiles'
     }).addTo(map)
 
     leafletMap.current = map
-    return () => { map.remove(); leafletMap.current = null }
+
+    // Fix tile loading in flex/absolute containers
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize()
+    })
+    observer.observe(mapRef.current)
+
+    return () => { 
+      observer.disconnect()
+      map.remove()
+      leafletMap.current = null 
+    }
   }, [])
 
   useEffect(() => {
     if (!profile) return
 
-    // Load GPS history
     supabase
       .from('robot_telemetry')
       .select('gps_lat, gps_lng, timestamp')
@@ -61,7 +74,6 @@ export default function GpsMap() {
         renderTrail(pts, valid[valid.length - 1])
       })
 
-    // Realtime new positions
     const channel = supabase
       .channel('gps-map')
       .on('postgres_changes', {
@@ -85,23 +97,14 @@ export default function GpsMap() {
   const renderTrail = (pts: [number, number][], latest: { gps_lat: number; gps_lng: number }) => {
     const map = leafletMap.current
     if (!map) return
-
     if (polylineRef.current) polylineRef.current.remove()
     if (markerRef.current) markerRef.current.remove()
-
     if (pts.length > 1) {
-      polylineRef.current = L.polyline(pts, {
-        color: '#34d364',
-        weight: 3,
-        opacity: 0.8,
-        dashArray: '6, 4'
-      }).addTo(map)
+      polylineRef.current = L.polyline(pts, { color: '#4A7C59', weight: 3, opacity: 0.8, dashArray: '6, 4' }).addTo(map)
     }
-
     markerRef.current = L.marker([latest.gps_lat, latest.gps_lng])
       .addTo(map)
       .bindPopup(`🤖 Robot<br>Lat: ${latest.gps_lat.toFixed(6)}<br>Lng: ${latest.gps_lng.toFixed(6)}`)
-
     map.setView([latest.gps_lat, latest.gps_lng], 16)
   }
 
@@ -111,24 +114,37 @@ export default function GpsMap() {
   }
 
   return (
-    <div>
-      <div id="gps-map" ref={mapRef} className="map-wrapper" />
-      <div className="map-actions">
-        {currentPos && (
-          <>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
-              📍 {currentPos.lat.toFixed(6)}, {currentPos.lng.toFixed(6)}
+    <div className="map-container-full" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div 
+        id="gps-map" 
+        ref={mapRef} 
+        style={{ 
+          flex: 1, 
+          width: '100%', 
+          height: '100%', 
+          background: '#e0e0e0', // Placeholder background to confirm container is visible
+          position: 'relative' 
+        }} 
+      />
+      {/* Floating info at bottom */}
+      <div className="map-floating-overlay">
+        <div className="floating-card">
+          {currentPos ? (
+            <>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-fg)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Navigation size={14} fill="var(--color-primary)" stroke="none" />
+                {currentPos.lat.toFixed(6)}, {currentPos.lng.toFixed(6)}
+              </span>
+              <button className="btn btn-primary btn-sm" onClick={openGoogleMaps} style={{ padding: '4px 12px' }}>
+                Mở Maps
+              </button>
+            </>
+          ) : (
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-muted-fg)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MapPin size={14} /> Chờ tín hiệu GPS từ Robot
             </span>
-            <button id="btn-google-maps" className="btn btn-ghost" onClick={openGoogleMaps} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-              🗺️ Mở Google Maps
-            </button>
-          </>
-        )}
-        {!currentPos && (
-          <span style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>
-            Chờ tín hiệu GPS từ robot...
-          </span>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

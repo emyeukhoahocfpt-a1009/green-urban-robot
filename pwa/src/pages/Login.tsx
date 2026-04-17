@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { Navigate } from 'react-router-dom'
+import { LogIn, Key, User, ShieldAlert } from 'lucide-react'
 
 export default function Login() {
   const { session, signIn } = useAuthStore()
@@ -26,9 +27,13 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="glass-card login-card">
-        <div className="login-logo">
-          <div className="login-logo-icon">
+      {/* Background Blobs for specific login aesthetic */}
+      <div className="blob-bg" style={{ top: '-10%', left: '-10%', width: '500px', height: '500px', background: 'var(--color-primary)' }} />
+      <div className="blob-bg" style={{ bottom: '-10%', right: '-10%', width: '600px', height: '600px', background: 'var(--color-secondary)' }} />
+
+      <div className="organic-card login-card" style={{ borderRadius: '3rem 5rem 3.2rem 4rem', padding: '3.5rem var(--space-8)' }}>
+        <div className="login-logo" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="login-logo-icon" style={{ borderRadius: '2rem', background: 'var(--color-muted)', width: 84, height: 84, padding: 4 }}>
             <img
               src="/logo.png"
               alt="Green Urban Robot Logo"
@@ -36,27 +41,32 @@ export default function Login() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
-                borderRadius: '50%',
-                filter: 'drop-shadow(0 0 12px rgba(52,211,100,0.5))',
+                borderRadius: 'inherit'
               }}
             />
           </div>
-          <div>
-            <h1>Green Urban Robot</h1>
-            <p>Hệ thống điều khiển robot đô thị xanh</p>
+          <div style={{ marginTop: '1.5rem' }}>
+            <h1 style={{ color: 'var(--color-fg)', fontSize: '2rem', fontWeight: 800 }}>Green Urban Robot</h1>
+            <p style={{ color: 'var(--color-muted-fg)', marginTop: '0.4rem', fontWeight: 500 }}>Hệ thống robot đô thị xanh</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {error && <div className="error-message">⚠️ {error}</div>}
+        <form onSubmit={handleSubmit} style={{ marginTop: '2.5rem' }}>
+          {error && (
+            <div className="error-message" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ShieldAlert size={18} /> {error}
+            </div>
+          )}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Tài khoản (Username / Email)</label>
+            <label className="form-label" htmlFor="email" style={{ color: 'var(--color-fg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <User size={14} /> Tài khoản
+            </label>
             <input
               id="email"
               type="text"
               className="input"
-              placeholder="VD: robot001"
+              placeholder="VD: name@example.com"
               value={email}
               onChange={e => setEmail(e.target.value.toLowerCase())}
               required
@@ -65,7 +75,9 @@ export default function Login() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">Mật khẩu</label>
+            <label className="form-label" htmlFor="password" style={{ color: 'var(--color-fg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Key size={14} /> Mật khẩu
+            </label>
             <input
               id="password"
               type="password"
@@ -83,15 +95,19 @@ export default function Login() {
             type="submit"
             className="btn btn-primary"
             disabled={loading}
-            style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}
+            style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem', height: 54, borderRadius: 'var(--radius-full)' }}
           >
             {loading ? (
-              <><span className="loader-ring" style={{ width: 16, height: 16, borderWidth: 2 }} /> Đang đăng nhập...</>
-            ) : '🔑 Đăng nhập'}
+              <><span className="loader-ring" style={{ width: 16, height: 16, borderWidth: 2 }} /> Đang xử lý...</>
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <LogIn size={20} /> Đăng nhập
+              </span>
+            )}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
+        <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.8rem', color: 'var(--color-muted-fg)', opacity: 0.8 }}>
           Green Urban Robot © 2025 — FPT Semiconductor
         </p>
       </div>
