@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase, type Schedule } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 
-import { 
-  Plus, 
-  Trash2, 
-  Play, 
-  Pause, 
+import {
+  Plus,
+  Trash2,
+  Play,
+  Pause,
   Home as HomeIcon,
   Clock
 } from 'lucide-react'
@@ -158,8 +158,8 @@ export default function SchedulePanel({ onNotif }: Props) {
             <div className="schedule-info">
               <div className="schedule-label">{s.label}</div>
               <div className="schedule-times" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <Play size={10} fill="currentColor" /> {formatLocal(s.start_time)} 
-                <span style={{ opacity: 0.5 }}>→</span> 
+                <Play size={10} fill="currentColor" /> {formatLocal(s.start_time)}
+                <span style={{ opacity: 0.5 }}>→</span>
                 <HomeIcon size={10} /> {formatLocal(s.return_home_time)}
                 <span style={{ opacity: 0.5 }}>·</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

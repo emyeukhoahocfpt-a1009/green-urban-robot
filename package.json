@@ -1,5 +1,14 @@
 {
-  "dependencies": {
-    "pg": "^8.20.0"
-  }
+  "name": "green-urban-robot-root",
+  "version": "1.0.0",
+  "description": "Root directory for Green Urban Robot project",
+  "scripts": {
+    "dev": "npm run dev --prefix pwa",
+    "build": "npm run build --prefix pwa",
+    "preview": "npm run preview --prefix pwa",
+    "pwa:install": "npm install --prefix pwa"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

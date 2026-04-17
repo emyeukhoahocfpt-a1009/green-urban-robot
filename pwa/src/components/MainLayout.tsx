@@ -11,8 +11,10 @@ import {
   LogOut, 
   Sun, 
   Moon,
-  Play
+  Play,
+  Settings
 } from 'lucide-react'
+import RobotSettings from './RobotSettings'
 
 export type OutletContextType = {
   showNotif: (msg: string, type?: 'success' | 'danger' | 'warning') => void
@@ -25,6 +27,7 @@ export default function MainLayout() {
 
   const [lastHeartbeat, setLastHeartbeat] = useState<string | null>(null)
   const [notification, setNotification] = useState<{ msg: string; type: 'success' | 'danger' | 'warning' } | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
   const notifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showNotif = (msg: string, type: 'success' | 'danger' | 'warning' = 'success') => {
@@ -100,6 +103,14 @@ export default function MainLayout() {
 
           <button
             className="btn btn-ghost"
+            onClick={() => setShowSettings(true)}
+            style={{ width: 34, height: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--radius-md)' }}
+          >
+            <Settings size={18} strokeWidth={2} />
+          </button>
+
+          <button
+            className="btn btn-ghost"
             onClick={toggleTheme}
             style={{ width: 34, height: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--radius-md)' }}
           >
@@ -158,6 +169,13 @@ export default function MainLayout() {
           </NavLink>
         </div>
       </nav>
+      {/* Settings Modal */}
+      {showSettings && (
+        <RobotSettings 
+          onClose={() => setShowSettings(false)} 
+          showNotif={showNotif}
+        />
+      )}
     </div>
   )
 }
