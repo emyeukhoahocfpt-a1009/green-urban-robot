@@ -20,7 +20,7 @@ export default function RobotSettings({ onClose, showNotif }: RobotSettingsProps
 
   const fetchCurrentRobot = async () => {
     if (!profile) return
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('robots')
       .select('*')
       .eq('owner_id', profile.id)
